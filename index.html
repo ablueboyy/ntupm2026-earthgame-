@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>流唱營：樂團尋寶</title>
+    <title>流唱營：尋回失竊的樂章</title>
     <style>
         :root {
-            --bg-color: #d2873a;
-            --panel-bg: #8B4513;
-            --primary-color: #A0522D;
-            --secondary-color: #CD853F;
-            --accent-color: #D2691E;
-            --cell-bg: #F5F5DC;
-            --cell-hover: #D2691E;
-            --text-color: #F5DEB3;
-            --instrument-color: #F4A460;
+            --bg-color: #2c3e50; /* 配合火車夜間/懸疑氛圍，底色改為深藍灰 */
+            --panel-bg: #34495e;
+            --primary-color: #f1c40f; /* 探照燈/雷達的黃色 */
+            --secondary-color: #e67e22;
+            --accent-color: #e74c3c;
+            --cell-bg: #ecf0f1;
+            --cell-hover: #bdc3c7;
+            --text-color: #ecf0f1;
+            --instrument-color: #f39c12;
         }
 
         body {
@@ -26,17 +26,31 @@
             padding: 20px;
         }
 
-        h1 { margin-top: 10px; color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); }
+        h1 { margin-top: 10px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
         h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 10px; }
 
+        /* 故事背景區塊 */
+        #story-box {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
         #controls {
-            margin: 20px auto;
+            margin: 0 auto 20px auto;
             padding: 20px;
             background: var(--panel-bg);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             display: inline-block;
-            border: 1px solid var(--secondary-color);
+            border: 1px solid #7f8c8d;
             min-width: 320px;
         }
 
@@ -47,13 +61,13 @@
             padding: 12px;
             border-radius: 8px;
             font-size: 15px;
-            border: 1px solid var(--secondary-color);
+            border: 1px solid #7f8c8d;
         }
         .inventory-header {
             font-weight: bold;
             margin-bottom: 8px;
-            color: #FFF;
-            border-bottom: 1px solid var(--secondary-color);
+            color: var(--primary-color);
+            border-bottom: 1px solid #7f8c8d;
             padding-bottom: 4px;
         }
         .inventory-item {
@@ -62,18 +76,15 @@
             margin-bottom: 6px;
             color: var(--text-color);
         }
-        .limit-reached {
-            color: #FF6347; 
-            font-weight: bold;
-        }
+        .limit-reached { color: #e74c3c; font-weight: bold; }
 
         select, button {
             padding: 10px 15px;
             font-size: 16px;
             margin: 5px;
             border-radius: 6px;
-            border: 1px solid #A0522D;
-            background-color: #8B4513;
+            border: 1px solid #7f8c8d;
+            background-color: #2c3e50;
             color: var(--text-color);
             outline: none;
             width: 100%;
@@ -83,8 +94,8 @@
         select:focus { border-color: var(--primary-color); }
 
         button {
-            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-            color: #000;
+            background: linear-gradient(45deg, var(--secondary-color), #d35400);
+            color: #fff;
             cursor: pointer;
             border: none;
             font-weight: bold;
@@ -92,11 +103,7 @@
             margin-top: 10px;
         }
 
-        button:hover {
-            box-shadow: 0 0 10px var(--primary-color);
-            transform: translateY(-2px);
-        }
-        
+        button:hover { box-shadow: 0 0 10px var(--secondary-color); transform: translateY(-2px); }
         button:active { transform: translateY(1px); }
 
         /* 關主按鈕樣式 */
@@ -109,17 +116,18 @@
             color: white;
             border: none;
             font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         .btn-win { background: #27ae60; }
         .btn-win:hover { background: #2ecc71; box-shadow: 0 0 8px #2ecc71;}
-        .btn-lose { background: #e67e22; }
-        .btn-lose:hover { background: #f39c12; box-shadow: 0 0 8px #f39c12;}
+        .btn-lose { background: #d35400; }
+        .btn-lose:hover { background: #e67e22; box-shadow: 0 0 8px #e67e22;}
         .btn-secret { background: #8e44ad; }
         .btn-secret:hover { background: #9b59b6; box-shadow: 0 0 8px #9b59b6;}
-        .btn-undo { background: #d35400; }
-        .btn-undo:hover { background: #e67e22; box-shadow: 0 0 8px #e67e22;}
-        .btn-settle { background: #c0392b; width: 95%; margin-top: 10px; }
-        .btn-settle:hover { background: #e74c3c; box-shadow: 0 0 8px #e74c3c;}
+        .btn-undo { background: #c0392b; }
+        .btn-undo:hover { background: #e74c3c; box-shadow: 0 0 8px #e74c3c;}
+        .btn-settle { background: #7f8c8d; width: 95%; margin-top: 10px; }
+        .btn-settle:hover { background: #95a5a6; box-shadow: 0 0 8px #95a5a6;}
 
         .stats {
             font-size: 18px;
@@ -131,21 +139,21 @@
             gap: 10px;
         }
         .stat-item {
-            background: rgba(245,222,179,0.2);
+            background: rgba(0,0,0,0.3);
             padding: 8px 20px;
             border-radius: 20px;
             width: 80%;
         }
         #score-display { color: #50fa7b; font-size: 22px; text-shadow: 0 0 5px #50fa7b; }
-        #moves-display { color: #f1c40f; font-size: 22px; }
+        #moves-display { color: var(--primary-color); font-size: 22px; }
         
         #board-container {
             position: relative;
             display: inline-block;
             padding: 10px;
-            background: #654321;
+            background: #1a252f;
             border-radius: 10px;
-            border: 2px solid #8B4513;
+            border: 2px solid #34495e;
             max-width: 100%;
             overflow-x: auto;
         }
@@ -172,6 +180,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 14px; 
+            color: #2c3e50; /* 數字顏色深一點 */
             user-select: none; 
         }
 
@@ -181,48 +190,28 @@
         
         .cell.setup-treasure {
             background-color: var(--instrument-color);
-            border: 1px solid var(--text-color);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 1px solid #fff;
         }
 
-        .cell.preview-valid {
-            background-color: rgba(244, 164, 96, 0.6); 
-            border: 2px dashed #A0522D;
-            box-sizing: border-box;
-        }
-
-        .cell.preview-invalid {
-            background-color: rgba(255, 0, 0, 0.5);
-            border: 2px dashed #FF0000;
-            box-sizing: border-box;
-            cursor: not-allowed;
-        }
+        .cell.preview-valid { background-color: rgba(241, 196, 15, 0.6); border: 2px dashed #f39c12; box-sizing: border-box; }
+        .cell.preview-invalid { background-color: rgba(231, 76, 60, 0.5); border: 2px dashed #c0392b; box-sizing: border-box; cursor: not-allowed; }
 
         .cell.revealed { cursor: not-allowed; box-shadow: none; }
 
-        .cell.miss { background-color: #FF0000; }
-        .n1 { color: #8B4513; }
-        .n2 { color: #A0522D; }
-        .n3 { color: #CD853F; }
-        .n4 { color: #D2691E; }
-        .n5 { color: #8B4513; font-weight: 900; }
-        .n6, .n7, .n8 { color: #654321; font-weight: 900; }
+        .cell.miss { background-color: #7f8c8d; } /* 沒中變成深灰色荒地 */
+        .n1 { color: #3498db; }
+        .n2 { color: #2ecc71; }
+        .n3 { color: #e74c3c; }
+        .n4 { color: #9b59b6; }
+        .n5 { color: #f39c12; font-weight: 900; }
+        .n6, .n7, .n8 { color: #e67e22; font-weight: 900; }
 
-        .cell.hit {
-            background-color: #FFFF00;
-            color: #000;
-            animation: hitPop 0.3s ease;
-        }
-        
-        .cell.completed {
-            background-color: #00FF00;
-            box-shadow: 0 0 15px #00FF00;
-            color: #000;
-        }
+        .cell.hit { background-color: #f1c40f; color: #000; animation: hitPop 0.3s ease; }
+        .cell.completed { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; color: #000; }
         
         @keyframes hitPop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); background-color: #F5DEB3; }
+            50% { transform: scale(1.1); background-color: #fff; }
             100% { transform: scale(1); }
         }
 
@@ -233,17 +222,23 @@
             margin-top: 20px;
             margin-bottom: 10px;
             min-height: 25px;
-            text-shadow: 0 0 5px rgba(160,82,45,0.5);
+            text-shadow: 0 0 5px rgba(241, 196, 15, 0.4);
         }
     </style>
 </head>
 <body>
 
-    <h1>🎧 流唱營：樂團尋寶</h1>
+    <h1>🚂 流唱特快車：尋回失竊的樂章</h1>
+
+    <div id="story-box">
+        <strong>⚠️ 突發狀況！</strong><br>
+        各位旅客請注意，特快車已緊急停靠。前方準備在今晚開唱的樂團遭到襲擊，他們的樂器全被神祕的「怪盜」偷走，並就近掩埋在車站外的荒野中了！<br>
+        請各位小隊員立刻出動，透過大地任務獲取「雷達電量 (步數)」，掃描這片荒野，幫樂團找回失竊的樂器吧！
+    </div>
 
     <div id="controls">
         <div id="setup-panel">
-            <h3>🎵 第一階段：配置舞台</h3>
+            <h3>🧳 第一階段：怪盜藏匿點 (關主設定)</h3>
             
             <div id="inventory-list" class="info-list"></div>
 
@@ -255,34 +250,34 @@
                 <option value="2,2,🥁">🥁 爵士鼓 (2x2 方塊) - 10分</option>
                 <option value="2,3,📻">📻 監聽音箱 (2寬x3高) - 15分</option>
             </select>
-            <button onclick="startGame()">Game Start</button>
-            <p style="font-size:14px; color:#F5DEB3; margin-top:15px; line-height: 1.5;">
-                🔹 請在下方 15x15 的面板配置樂團器材。<br>
-                ✨ 開始後，系統將隨機空降 **狂熱旋律 (10格連鎖, 20分)** 彩蛋！
+            <button onclick="startGame()">佈置完成，啟動小隊雷達</button>
+            <p style="font-size:14px; color:#bdc3c7; margin-top:15px; line-height: 1.5;">
+                🔹 關主請在下方 15x15 的荒野中配置被偷走的器材。<br>
+                ✨ 開始後，系統將隨機空降 **怪盜的陷阱 (10格連鎖, 20分)**！
             </p>
         </div>
 
         <div id="play-panel" style="display: none;">
-            <h3>🎧 第二階段：尋找音軌</h3>
+            <h3>📡 第二階段：啟動雷達搜索</h3>
             
             <div id="play-reference" class="info-list"></div>
 
             <div class="stats">
-                <div class="stat-item">總分數: <span id="score-display">0</span></div>
-                <div class="stat-item">剩餘步數: <span id="moves-display">0</span></div>
+                <div class="stat-item">尋回進度 (總分): <span id="score-display">0</span></div>
+                <div class="stat-item">剩餘雷達電量 (步數): <span id="moves-display">0</span></div>
             </div>
 
-            <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
-                <div style="font-size: 14px; color: #ccc; margin-bottom: 5px;">【關主專用操作區】</div>
-                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 遊戲贏了 (+15步)</button>
-                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 遊戲輸了 (+10步)</button>
-                <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 神秘任務 (+5步)</button>
-                <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除步數 (-5步)</button>
-                <hr style="border-color: #8B4513; margin: 10px 0;">
-                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結算分數並顯示剩餘樂器</button>
+            <div style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【關主專用：為小隊充電】</div>
+                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 闖關大勝 (+15步)</button>
+                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 闖關失敗 (+10步)</button>
+                <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 破解彩蛋 (+5步)</button>
+                <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除電量 (-5步)</button>
+                <hr style="border-color: #7f8c8d; margin: 10px 0;">
+                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
             </div>
 
-            <button onclick="restartGame()" style="background: var(--accent-color); color:white; width:auto; padding: 10px 30px; margin-top: 5px;">重新一局 (清除所有進度)</button>
+            <button onclick="restartGame()" style="background: transparent; border: 1px solid #e74c3c; color:#e74c3c; width:auto; padding: 8px 20px; margin-top: 5px;">重新一局 (清除存檔)</button>
         </div>
     </div>
 
@@ -309,7 +304,7 @@
             '🎹': '電子琴 (3x1)',
             '🥁': '爵士鼓 (2x2)',
             '📻': '監聽音箱 (2x3)',
-            '👾': '狂熱旋律 (10格連鎖)' 
+            '👾': '怪盜的陷阱 (10格連鎖)' 
         };
 
         const POINTS_MAP = {
@@ -339,18 +334,17 @@
             saveGame(); 
             
             if (amount > 0) {
-                showMessage(`✨ 成功獲得 ${amount} 步！目前共有 ${movesLeft} 步可以探索。`);
+                showMessage(`🔋 充電成功！獲得 ${amount} 單位電量，目前共有 ${movesLeft} 步可以掃描。`);
             } else {
-                showMessage(`⏪ 已退回 ${Math.abs(amount)} 步！目前剩下 ${movesLeft} 步。`);
+                showMessage(`⏪ 已收回 ${Math.abs(amount)} 單位電量！目前剩下 ${movesLeft} 步。`);
             }
         }
 
-        // 【新增】手動結算功能
         function manualSettle() {
-            if(confirm("確定要立刻結算並顯示所有剩餘樂器嗎？結算後將無法繼續翻牌！")) {
+            if(confirm("確定要立刻結算並公開所有怪盜藏匿點嗎？結算後將無法繼續搜索！")) {
                 movesLeft = 0; 
                 document.getElementById('moves-display').innerText = movesLeft;
-                showMessage(`🛑 遊戲已手動結算！最終得分為：${score} 分！`);
+                showMessage(`🛑 搜索行動結束！本次小隊共尋回價值 ${score} 分的樂器！`);
                 endGameDisplay();
                 clearSave(); 
             }
@@ -359,7 +353,7 @@
         function updateInventoryUI() {
             if (phase !== 'setup') return;
             const inventoryDiv = document.getElementById('inventory-list');
-            inventoryDiv.innerHTML = '<div class="inventory-header">📊 樂器庫存對照表</div>';
+            inventoryDiv.innerHTML = '<div class="inventory-header">📋 怪盜贓物清單 (庫存)</div>';
             
             for (let icon in LIMITS) {
                 const limit = LIMITS[icon];
@@ -377,7 +371,7 @@
         function updatePlayReferenceUI() {
             if (phase !== 'play') return;
             const refDiv = document.getElementById('play-reference');
-            refDiv.innerHTML = '<div class="inventory-header">📋 目標音軌與懸賞分數</div>';
+            refDiv.innerHTML = '<div class="inventory-header">📡 探測器分析：遺失物列表</div>';
             
             let hiddenCounts = {};
             let foundCounts = {};
@@ -399,7 +393,7 @@
                 itemDiv.className = 'inventory-item';
                 
                 if (found === total) {
-                    itemDiv.style.color = '#00FF00';
+                    itemDiv.style.color = '#2ecc71';
                     itemDiv.style.fontWeight = 'bold';
                 }
                 itemDiv.innerHTML = `<span>${icon} ${nameStr} <small>(${pt}分)</small></span> <span>${found} / ${total}</span>`;
@@ -415,7 +409,7 @@
         function clearSave() { localStorage.removeItem(SAVE_KEY); }
 
         function restartGame() {
-            if(confirm("確定要重新一局嗎？這會清除目前的進度喔！")) {
+            if(confirm("確定要重啟特快車任務嗎？這會清除小隊目前的進度喔！")) {
                 clearSave();
                 location.reload();
             }
@@ -446,7 +440,6 @@
                 const state = JSON.parse(savedData);
                 
                 if (!state.board || state.board.length !== SIZE) {
-                    console.log("偵測到舊版存檔大小不符，已自動重置棋盤。");
                     initBoard();
                     return;
                 }
@@ -503,10 +496,10 @@
                     document.getElementById('score-display').innerText = score;
                     document.getElementById('moves-display').innerText = movesLeft;
                     updatePlayReferenceUI();
-                    showMessage("🎧 歡迎回來！自動為您恢復上次的進度。");
+                    showMessage("📡 系統連線成功！自動恢復先前的搜索進度。");
                 } else {
                     updateInventoryUI(); 
-                    showMessage("🎵 歡迎回來！請繼續配置舞台。");
+                    showMessage("🎵 歡迎回來！關主請繼續掩埋樂器。");
                 }
             } else {
                 initBoard();
@@ -572,7 +565,7 @@
             });
 
             treasures.splice(treasureIndex, 1);
-            showMessage(`🗑️ 已移除 ${treasure.icon}，您可以重新放置！`);
+            showMessage(`🗑️ 已挖出 ${treasure.icon}，請重新選擇掩埋地點！`);
             updateInventoryUI(); 
             saveGame(); clearPreview(); handleCellHover(r, c); 
         }
@@ -584,11 +577,11 @@
             if (treasures.filter(t => t.icon === icon).length >= LIMITS[icon]) {
                 showMessage(`❗ ${icon} 的數量已經達到上限！`); return;
             }
-            if (r + h > SIZE || c + w > SIZE) { showMessage("❗ 軌道超出範圍！"); return; }
+            if (r + h > SIZE || c + w > SIZE) { showMessage("❗ 超出荒野範圍了！"); return; }
 
             for (let i = 0; i < h; i++) {
                 for (let j = 0; j < w; j++) {
-                    if (board[r + i][c + j].treasureId !== 0) { showMessage("❗ 這裡已經有其他軌道了！"); return; }
+                    if (board[r + i][c + j].treasureId !== 0) { showMessage("❗ 這裡已經埋了其他東西！"); return; }
                 }
             }
 
@@ -605,7 +598,7 @@
 
             treasures.push(newTreasure);
             treasureIdCounter++;
-            showMessage(`✅ 成功放置 ${icon} 軌道！`);
+            showMessage(`✅ 成功隱藏 ${icon}！`);
             updateInventoryUI(); saveGame(); clearPreview(); handleCellHover(r, c); 
         }
 
@@ -664,7 +657,7 @@
         }
 
         function startGame() {
-            if (treasures.length === 0) { showMessage("⚠️ 請至少放置一個樂器！"); return; }
+            if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
 
             const blobSuccess = placeRandomBlob(10, '👾');
 
@@ -675,9 +668,9 @@
             updatePlayReferenceUI();
 
             if (blobSuccess) {
-                showMessage("🚨 遊戲開始！小隊必須解鎖步數才能開始尋寶。");
+                showMessage("🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
             } else {
-                showMessage("🎧 音樂製作開始！(空間過於擁擠，未生成彩蛋)");
+                showMessage("🚨 任務開始！(空間過於擁擠，未生成怪盜陷阱)");
             }
             
             clearPreview(); 
@@ -707,7 +700,7 @@
 
         function revealCell(r, c) {
             if (movesLeft <= 0) {
-                showMessage("⚠️ 步數不足！請先完成關卡任務獲取步數。");
+                showMessage("⚠️ 雷達電量不足！請小隊先去完成關卡任務充電。");
                 return;
             }
             if (board[r][c].revealed) return;
@@ -727,7 +720,7 @@
                     cellDiv.innerText = count;
                     cellDiv.classList.add(`n${count}`); 
                 } else cellDiv.innerText = "";
-                showMessage("這裡沒有音軌...");
+                showMessage("這裡只是一片空蕩蕩的草地...");
             } else {
                 const treasure = treasures.find(t => t.id === tId);
                 cellDiv.classList.add('hit');
@@ -741,15 +734,15 @@
                     document.getElementById('score-display').innerText = score;
 
                     if (treasure.icon === '👾') {
-                        showMessage(`🔥 狂暴！你捕獲了 👾 狂熱旋律，一口氣獲得 ${pt} 分！`);
+                        showMessage(`🔥 驚人發現！破解了 👾 怪盜的陷阱，一口氣奪回 ${pt} 分！`);
                     } else {
-                        showMessage(`✨ 太棒了！錄製完成了 ${treasure.icon} (+${pt} 分)`);
+                        showMessage(`✨ 太棒了！順利尋回 ${treasure.icon} (+${pt} 分)`);
                     }
 
                     treasure.cells.forEach(pos => document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('completed'));
                     updatePlayReferenceUI();
                 } else {
-                    showMessage(`🔥 抓到 ${treasure.icon} 的一段旋律了！繼續找！`);
+                    showMessage(`📡 雷達有反應！掃描到 ${treasure.icon} 的一部分了，繼續挖！`);
                 }
             }
 
@@ -760,7 +753,7 @@
             const allFound = treasures.every(t => t.foundCount === t.size);
             
             if (allFound) {
-                showMessage(`🎊 恭喜！你完成了神級專輯！最終得分：${score} 分！`);
+                showMessage(`🎊 奇蹟！所有樂器都找回來了！演唱會準備開始！最終得分：${score} 分！`);
                 movesLeft = 0; 
                 endGameDisplay();
                 clearSave(); 
@@ -776,7 +769,8 @@
                         const cellDiv = document.getElementById(`cell-${r}-${c}`);
                         const treasure = treasures.find(t => t.id === board[r][c].treasureId);
                         cellDiv.innerText = treasure.icon; 
-                        cellDiv.style.backgroundColor = "#444"; 
+                        cellDiv.style.backgroundColor = "#2c3e50"; /* 結算時未找出的變暗 */
+                        cellDiv.style.border = "1px solid #7f8c8d";
                     }
                 }
             }
