@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTUPM 流行樂團尋寶</title>
+    <title>流唱營：樂團尋寶</title>
     <style>
         :root {
             --bg-color: #d2873a;
@@ -99,21 +99,45 @@
         
         button:active { transform: translateY(1px); }
 
+        /* 關主按鈕樣式 */
+        .gm-btn {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 14px;
+            margin: 5px 2px;
+            border-radius: 6px;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        .btn-win { background: #27ae60; }
+        .btn-win:hover { background: #2ecc71; box-shadow: 0 0 8px #2ecc71;}
+        .btn-lose { background: #e67e22; }
+        .btn-lose:hover { background: #f39c12; box-shadow: 0 0 8px #f39c12;}
+        .btn-secret { background: #8e44ad; }
+        .btn-secret:hover { background: #9b59b6; box-shadow: 0 0 8px #9b59b6;}
+        .btn-undo { background: #d35400; }
+        .btn-undo:hover { background: #e67e22; box-shadow: 0 0 8px #e67e22;}
+        .btn-settle { background: #c0392b; width: 95%; margin-top: 10px; }
+        .btn-settle:hover { background: #e74c3c; box-shadow: 0 0 8px #e74c3c;}
+
         .stats {
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 15px;
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
         .stat-item {
             background: rgba(245,222,179,0.2);
-            padding: 5px 15px;
+            padding: 8px 20px;
             border-radius: 20px;
+            width: 80%;
         }
         #score-display { color: #50fa7b; font-size: 22px; text-shadow: 0 0 5px #50fa7b; }
-        #moves-display { color: var(--accent-color); }
+        #moves-display { color: #f1c40f; font-size: 22px; }
         
         #board-container {
             position: relative;
@@ -207,6 +231,7 @@
             color: var(--primary-color);
             font-weight: bold;
             margin-top: 20px;
+            margin-bottom: 10px;
             min-height: 25px;
             text-shadow: 0 0 5px rgba(160,82,45,0.5);
         }
@@ -244,9 +269,20 @@
 
             <div class="stats">
                 <div class="stat-item">總分數: <span id="score-display">0</span></div>
-                <div class="stat-item">剩餘步數: <span id="moves-display">60</span></div>
+                <div class="stat-item">剩餘步數: <span id="moves-display">0</span></div>
             </div>
-            <button onclick="restartGame()" style="background: var(--accent-color); color:white; width:auto; padding: 10px 30px;">重新一局</button>
+
+            <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <div style="font-size: 14px; color: #ccc; margin-bottom: 5px;">【關主專用操作區】</div>
+                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 遊戲贏了 (+15步)</button>
+                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 遊戲輸了 (+10步)</button>
+                <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 神秘任務 (+5步)</button>
+                <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除步數 (-5步)</button>
+                <hr style="border-color: #8B4513; margin: 10px 0;">
+                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結算分數並顯示剩餘樂器</button>
+            </div>
+
+            <button onclick="restartGame()" style="background: var(--accent-color); color:white; width:auto; padding: 10px 30px; margin-top: 5px;">重新一局 (清除所有進度)</button>
         </div>
     </div>
 
@@ -257,12 +293,11 @@
     </div>
 
     <script>
-        // 專注於流行樂團配置，庫存稍作調整
         const LIMITS = {
-            '🎤': 6, 
-            '🎸': 5, 
-            '🪕': 5, 
-            '🎹': 4, 
+            '🎤': 8, 
+            '🎸': 6, 
+            '🪕': 6, 
+            '🎹': 5, 
             '🥁': 4,
             '📻': 3
         };
@@ -274,21 +309,21 @@
             '🎹': '電子琴 (3x1)',
             '🥁': '爵士鼓 (2x2)',
             '📻': '監聽音箱 (2x3)',
-            '👾': '狂熱旋律 (10格連鎖)' // 神秘巨型物件
+            '👾': '狂熱旋律 (10格連鎖)' 
         };
 
         const POINTS_MAP = {
-            1: 1,   // 1x1
-            2: 3,   // 2x1, 1x2
-            3: 6,   // 3x1
-            4: 10,  // 2x2
-            6: 15,  // 2x3
-            10: 20  // 10格連鎖
+            1: 1,   
+            2: 3,   
+            3: 6,   
+            4: 10,  
+            6: 15,  
+            10: 20  
         };
 
         const SIZE = 15; 
         const SAVE_KEY = 'earthgame_save_data'; 
-        const DEFAULT_MOVES = 60; 
+        const DEFAULT_MOVES = 0; 
         
         let board = [];
         let treasures = [];
@@ -296,6 +331,30 @@
         let score = 0;
         let movesLeft = DEFAULT_MOVES; 
         let treasureIdCounter = 1;
+
+        function addMoves(amount) {
+            movesLeft += amount;
+            if (movesLeft < 0) movesLeft = 0; 
+            document.getElementById('moves-display').innerText = movesLeft;
+            saveGame(); 
+            
+            if (amount > 0) {
+                showMessage(`✨ 成功獲得 ${amount} 步！目前共有 ${movesLeft} 步可以探索。`);
+            } else {
+                showMessage(`⏪ 已退回 ${Math.abs(amount)} 步！目前剩下 ${movesLeft} 步。`);
+            }
+        }
+
+        // 【新增】手動結算功能
+        function manualSettle() {
+            if(confirm("確定要立刻結算並顯示所有剩餘樂器嗎？結算後將無法繼續翻牌！")) {
+                movesLeft = 0; 
+                document.getElementById('moves-display').innerText = movesLeft;
+                showMessage(`🛑 遊戲已手動結算！最終得分為：${score} 分！`);
+                endGameDisplay();
+                clearSave(); 
+            }
+        }
 
         function updateInventoryUI() {
             if (phase !== 'setup') return;
@@ -356,8 +415,10 @@
         function clearSave() { localStorage.removeItem(SAVE_KEY); }
 
         function restartGame() {
-            clearSave();
-            location.reload();
+            if(confirm("確定要重新一局嗎？這會清除目前的進度喔！")) {
+                clearSave();
+                location.reload();
+            }
         }
 
         function initBoard() {
@@ -442,7 +503,7 @@
                     document.getElementById('score-display').innerText = score;
                     document.getElementById('moves-display').innerText = movesLeft;
                     updatePlayReferenceUI();
-                    showMessage("🎧 歡迎回來！自動為您恢復上次的製作進度。");
+                    showMessage("🎧 歡迎回來！自動為您恢復上次的進度。");
                 } else {
                     updateInventoryUI(); 
                     showMessage("🎵 歡迎回來！請繼續配置舞台。");
@@ -614,7 +675,7 @@
             updatePlayReferenceUI();
 
             if (blobSuccess) {
-                showMessage("🚨 警告：偵測到 👾 狂熱旋律 (10格連鎖) 降臨！");
+                showMessage("🚨 遊戲開始！小隊必須解鎖步數才能開始尋寶。");
             } else {
                 showMessage("🎧 音樂製作開始！(空間過於擁擠，未生成彩蛋)");
             }
@@ -645,7 +706,11 @@
         }
 
         function revealCell(r, c) {
-            if (movesLeft <= 0 || board[r][c].revealed) return;
+            if (movesLeft <= 0) {
+                showMessage("⚠️ 步數不足！請先完成關卡任務獲取步數。");
+                return;
+            }
+            if (board[r][c].revealed) return;
 
             board[r][c].revealed = true;
             movesLeft--;
@@ -697,10 +762,6 @@
             if (allFound) {
                 showMessage(`🎊 恭喜！你完成了神級專輯！最終得分：${score} 分！`);
                 movesLeft = 0; 
-                endGameDisplay();
-                clearSave(); 
-            } else if (movesLeft === 0) {
-                showMessage(`😢 製作精力耗盡... 最終得分：${score} 分。`);
                 endGameDisplay();
                 clearSave(); 
             } else {
