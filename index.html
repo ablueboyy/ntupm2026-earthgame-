@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTUPM earthgame</title>
+    <title>NTUPM 流行樂團尋寶</title>
     <style>
         :root {
             --bg-color: #d2873a;
@@ -40,7 +40,6 @@
             min-width: 320px;
         }
 
-        /* 資訊清單通用樣式 (配置階段與遊玩階段共用) */
         .info-list {
             text-align: left;
             margin: 10px auto 15px auto;
@@ -113,7 +112,7 @@
             padding: 5px 15px;
             border-radius: 20px;
         }
-        #score-display { color: #F4A460; }
+        #score-display { color: #50fa7b; font-size: 22px; text-shadow: 0 0 5px #50fa7b; }
         #moves-display { color: var(--accent-color); }
         
         #board-container {
@@ -123,19 +122,22 @@
             background: #654321;
             border-radius: 10px;
             border: 2px solid #8B4513;
+            max-width: 100%;
+            overflow-x: auto;
         }
 
         #board {
             display: grid;
-            grid-template-columns: repeat(10, 45px);
-            grid-template-rows: repeat(10, 45px);
-            grid-gap: 4px;
+            grid-template-columns: repeat(15, 35px);
+            grid-template-rows: repeat(15, 35px);
+            grid-gap: 3px;
             justify-content: center;
+            min-width: max-content; 
         }
 
         .cell {
-            width: 45px;
-            height: 45px;
+            width: 35px;
+            height: 35px;
             background-color: var(--cell-bg);
             border-radius: 4px;
             cursor: pointer;
@@ -145,7 +147,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 14px; 
             user-select: none; 
         }
 
@@ -212,26 +214,26 @@
 </head>
 <body>
 
-    <h1>🎧 NTUPM earthgame</h1>
+    <h1>🎧 流唱營：樂團尋寶</h1>
 
     <div id="controls">
         <div id="setup-panel">
-            <h3>🎵 第一階段：藏樂器</h3>
+            <h3>🎵 第一階段：配置舞台</h3>
             
             <div id="inventory-list" class="info-list"></div>
 
             <select id="treasure-type">
-                <option value="1,1,🎤">🎤 麥克風</option>
-                <option value="2,1,🎸">🎸 電吉他</option>
-                <option value="1,2,🎻">🎻 小提琴</option>
-                <option value="3,1,🎹">🎹 電子琴</option>
-                <option value="2,2,🥁">🥁 爵士鼓</option>
+                <option value="1,1,🎤">🎤 麥克風 (1x1) - 1分</option>
+                <option value="2,1,🎸">🎸 電吉他 (2x1 橫) - 3分</option>
+                <option value="1,2,🪕">🪕 貝斯 (1x2 直) - 3分</option>
+                <option value="3,1,🎹">🎹 電子琴 (3x1 橫) - 6分</option>
+                <option value="2,2,🥁">🥁 爵士鼓 (2x2 方塊) - 10分</option>
+                <option value="2,3,📻">📻 監聽音箱 (2寬x3高) - 15分</option>
             </select>
             <button onclick="startGame()">Game Start</button>
             <p style="font-size:14px; color:#F5DEB3; margin-top:15px; line-height: 1.5;">
-                🔹 點擊右下方面板空位放置樂器。<br>
-                🔹 點擊「已放置」的樂器可將其移除。<br>
-                🔹 注意每種樂器的數量限制喔！
+                🔹 請在下方 15x15 的面板配置樂團器材。<br>
+                ✨ 開始後，系統將隨機空降 **狂熱旋律 (10格連鎖, 20分)** 彩蛋！
             </p>
         </div>
 
@@ -241,8 +243,8 @@
             <div id="play-reference" class="info-list"></div>
 
             <div class="stats">
-                <div class="stat-item">完成度: <span id="score-display">0</span>%</div>
-                <div class="stat-item">剩餘步數: <span id="moves-display">25</span></div>
+                <div class="stat-item">總分數: <span id="score-display">0</span></div>
+                <div class="stat-item">剩餘步數: <span id="moves-display">60</span></div>
             </div>
             <button onclick="restartGame()" style="background: var(--accent-color); color:white; width:auto; padding: 10px 30px;">重新一局</button>
         </div>
@@ -255,39 +257,50 @@
     </div>
 
     <script>
+        // 專注於流行樂團配置，庫存稍作調整
         const LIMITS = {
-            '🎤': 3, 
-            '🎸': 2, 
-            '🎻': 2, 
-            '🎹': 1, 
-            '🥁': 1  
+            '🎤': 6, 
+            '🎸': 5, 
+            '🪕': 5, 
+            '🎹': 4, 
+            '🥁': 4,
+            '📻': 3
         };
 
         const NAMES_AND_SIZES = {
             '🎤': '麥克風 (1x1)',
-            '🎸': '電吉他 (2x1 橫向)',
-            '🎻': '小提琴 (1x2 直向)', // 更新為小提琴
-            '🎹': '電子琴 (3x1 橫向)',
-            '🥁': '爵士鼓 (2x2 方塊)'
+            '🎸': '電吉他 (2x1)',
+            '🪕': '貝斯 (1x2)',
+            '🎹': '電子琴 (3x1)',
+            '🥁': '爵士鼓 (2x2)',
+            '📻': '監聽音箱 (2x3)',
+            '👾': '狂熱旋律 (10格連鎖)' // 神秘巨型物件
         };
 
-        const SIZE = 10;
+        const POINTS_MAP = {
+            1: 1,   // 1x1
+            2: 3,   // 2x1, 1x2
+            3: 6,   // 3x1
+            4: 10,  // 2x2
+            6: 15,  // 2x3
+            10: 20  // 10格連鎖
+        };
+
+        const SIZE = 15; 
         const SAVE_KEY = 'earthgame_save_data'; 
+        const DEFAULT_MOVES = 60; 
         
         let board = [];
         let treasures = [];
         let phase = 'setup'; 
         let score = 0;
-        let totalTreasureCells = 0; 
-        let foundTreasureCells = 0; 
-        let movesLeft = 25; 
+        let movesLeft = DEFAULT_MOVES; 
         let treasureIdCounter = 1;
 
-        // 更新佈置階段的庫存表
         function updateInventoryUI() {
             if (phase !== 'setup') return;
             const inventoryDiv = document.getElementById('inventory-list');
-            inventoryDiv.innerHTML = '<div class="inventory-header">📊 樂器庫存與大小對照</div>';
+            inventoryDiv.innerHTML = '<div class="inventory-header">📊 樂器庫存對照表</div>';
             
             for (let icon in LIMITS) {
                 const limit = LIMITS[icon];
@@ -296,29 +309,22 @@
                 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
-                
-                if (currentCount >= limit) {
-                    itemDiv.classList.add('limit-reached');
-                }
-                
+                if (currentCount >= limit) itemDiv.classList.add('limit-reached');
                 itemDiv.innerHTML = `<span>${icon} ${nameStr}</span> <span>${currentCount} / ${limit}</span>`;
                 inventoryDiv.appendChild(itemDiv);
             }
         }
 
-        // 【新增】更新遊玩階段的目標情報表 (顯示隱藏了哪些樂器以及大小)
         function updatePlayReferenceUI() {
             if (phase !== 'play') return;
             const refDiv = document.getElementById('play-reference');
-            refDiv.innerHTML = '<div class="inventory-header">📋 目標音軌情報 (已完成 / 總數)</div>';
+            refDiv.innerHTML = '<div class="inventory-header">📋 目標音軌與懸賞分數</div>';
             
-            // 計算場上總共有哪些樂器，以及哪些已經被「完整」找出來了
             let hiddenCounts = {};
             let foundCounts = {};
             
             treasures.forEach(t => {
                 hiddenCounts[t.icon] = (hiddenCounts[t.icon] || 0) + 1;
-                // 只有當該樂器的所有格子都被翻開，才算「已完成」
                 if (t.foundCount === t.size) {
                     foundCounts[t.icon] = (foundCounts[t.icon] || 0) + 1;
                 }
@@ -328,33 +334,26 @@
                 const total = hiddenCounts[icon];
                 const found = foundCounts[icon] || 0;
                 const nameStr = NAMES_AND_SIZES[icon];
+                const pt = POINTS_MAP[treasures.find(t=>t.icon === icon).size];
                 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
                 
-                // 如果該種樂器全部找齊，文字變為綠色
                 if (found === total) {
                     itemDiv.style.color = '#00FF00';
                     itemDiv.style.fontWeight = 'bold';
                 }
-                
-                itemDiv.innerHTML = `<span>${icon} ${nameStr}</span> <span>${found} / ${total}</span>`;
+                itemDiv.innerHTML = `<span>${icon} ${nameStr} <small>(${pt}分)</small></span> <span>${found} / ${total}</span>`;
                 refDiv.appendChild(itemDiv);
             }
         }
 
         function saveGame() {
-            const gameState = {
-                board, treasures, phase, score,
-                totalTreasureCells, foundTreasureCells,
-                movesLeft, treasureIdCounter
-            };
+            const gameState = { board, treasures, phase, score, movesLeft, treasureIdCounter };
             localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
         }
 
-        function clearSave() {
-            localStorage.removeItem(SAVE_KEY);
-        }
+        function clearSave() { localStorage.removeItem(SAVE_KEY); }
 
         function restartGame() {
             clearSave();
@@ -369,14 +368,11 @@
                 board[r] = [];
                 for (let c = 0; c < SIZE; c++) {
                     board[r][c] = { treasureId: 0, revealed: false };
-                    
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.id = `cell-${r}-${c}`;
-                    
                     cell.onclick = () => handleCellClick(r, c);
                     cell.onmouseenter = () => handleCellHover(r, c);
-                    
                     boardDiv.appendChild(cell);
                 }
             }
@@ -385,15 +381,19 @@
 
         function loadGameAndInit() {
             const savedData = localStorage.getItem(SAVE_KEY);
-            
             if (savedData) {
                 const state = JSON.parse(savedData);
+                
+                if (!state.board || state.board.length !== SIZE) {
+                    console.log("偵測到舊版存檔大小不符，已自動重置棋盤。");
+                    initBoard();
+                    return;
+                }
+
                 board = state.board;
                 treasures = state.treasures;
                 phase = state.phase;
                 score = state.score;
-                totalTreasureCells = state.totalTreasureCells;
-                foundTreasureCells = state.foundTreasureCells;
                 movesLeft = state.movesLeft;
                 treasureIdCounter = state.treasureIdCounter;
 
@@ -404,12 +404,10 @@
                         const cell = document.createElement('div');
                         cell.className = 'cell';
                         cell.id = `cell-${r}-${c}`;
-                        
                         cell.onclick = () => handleCellClick(r, c);
                         cell.onmouseenter = () => handleCellHover(r, c);
 
                         const cellData = board[r][c];
-
                         if (phase === 'setup' && cellData.treasureId !== 0) {
                             cell.classList.add('setup-treasure');
                             const treasure = treasures.find(t => t.id === cellData.treasureId);
@@ -443,11 +441,11 @@
                     document.getElementById('play-panel').style.display = 'block';
                     document.getElementById('score-display').innerText = score;
                     document.getElementById('moves-display').innerText = movesLeft;
-                    updatePlayReferenceUI(); // 重新載入時更新遊玩情報
+                    updatePlayReferenceUI();
                     showMessage("🎧 歡迎回來！自動為您恢復上次的製作進度。");
                 } else {
                     updateInventoryUI(); 
-                    showMessage("🎵 歡迎回來！請繼續配置樂器軌道。");
+                    showMessage("🎵 歡迎回來！請繼續配置舞台。");
                 }
             } else {
                 initBoard();
@@ -465,124 +463,75 @@
             clearPreview(); 
 
             if (board[r][c].treasureId !== 0) {
-                const tId = board[r][c].treasureId;
-                const treasure = treasures.find(t => t.id === tId);
-                if (treasure) {
-                    treasure.cells.forEach(pos => {
-                        document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('preview-invalid');
-                    });
-                }
+                const treasure = treasures.find(t => t.id === board[r][c].treasureId);
+                if (treasure) treasure.cells.forEach(pos => document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('preview-invalid'));
                 return;
             }
 
             const typeInfo = document.getElementById('treasure-type').value.split(',');
-            const w = parseInt(typeInfo[0]); 
-            const h = parseInt(typeInfo[1]); 
-            const icon = typeInfo[2];
+            const w = parseInt(typeInfo[0]); const h = parseInt(typeInfo[1]); const icon = typeInfo[2];
 
             let isValid = true;
             let cellsToPreview = [];
-
-            const currentCount = treasures.filter(t => t.icon === icon).length;
-            if (currentCount >= LIMITS[icon]) {
-                isValid = false; 
-            }
-
-            if (r + h > SIZE || c + w > SIZE) {
-                isValid = false;
-            }
+            if (treasures.filter(t => t.icon === icon).length >= LIMITS[icon]) isValid = false; 
+            if (r + h > SIZE || c + w > SIZE) isValid = false;
 
             for (let i = 0; i < h; i++) {
                 for (let j = 0; j < w; j++) {
                     if (r + i < SIZE && c + j < SIZE) {
                         cellsToPreview.push({r: r + i, c: c + j});
-                        if (board[r + i][c + j].treasureId !== 0) {
-                            isValid = false;
-                        }
+                        if (board[r + i][c + j].treasureId !== 0) isValid = false;
                     }
                 }
             }
 
             cellsToPreview.forEach(pos => {
                 const cellDiv = document.getElementById(`cell-${pos.r}-${pos.c}`);
-                if (isValid) {
-                    cellDiv.classList.add('preview-valid');
-                } else {
-                    cellDiv.classList.add('preview-invalid');
-                }
+                cellDiv.classList.add(isValid ? 'preview-valid' : 'preview-invalid');
             });
         }
 
         function handleCellClick(r, c) {
             if (phase === 'setup') {
-                if (board[r][c].treasureId !== 0) {
-                    removeTreasure(r, c);
-                } else {
-                    placeTreasure(r, c);
-                }
-            } else if (phase === 'play') {
-                revealCell(r, c);
-            }
+                if (board[r][c].treasureId !== 0) removeTreasure(r, c);
+                else placeTreasure(r, c);
+            } else if (phase === 'play') revealCell(r, c);
         }
 
         function removeTreasure(r, c) {
-            const tId = board[r][c].treasureId;
-            const treasureIndex = treasures.findIndex(t => t.id === tId);
+            const treasureIndex = treasures.findIndex(t => t.id === board[r][c].treasureId);
             if (treasureIndex === -1) return;
 
             const treasure = treasures[treasureIndex];
-
             treasure.cells.forEach(pos => {
                 board[pos.r][pos.c].treasureId = 0;
                 const cellDiv = document.getElementById(`cell-${pos.r}-${pos.c}`);
                 cellDiv.classList.remove('setup-treasure');
                 cellDiv.innerText = ""; 
-                totalTreasureCells--;
             });
 
             treasures.splice(treasureIndex, 1);
-
             showMessage(`🗑️ 已移除 ${treasure.icon}，您可以重新放置！`);
             updateInventoryUI(); 
-            saveGame();
-            clearPreview();
-            handleCellHover(r, c); 
+            saveGame(); clearPreview(); handleCellHover(r, c); 
         }
 
         function placeTreasure(r, c) {
             const typeInfo = document.getElementById('treasure-type').value.split(',');
-            const w = parseInt(typeInfo[0]); 
-            const h = parseInt(typeInfo[1]); 
-            const icon = typeInfo[2];        
+            const w = parseInt(typeInfo[0]); const h = parseInt(typeInfo[1]); const icon = typeInfo[2];        
 
-            const currentCount = treasures.filter(t => t.icon === icon).length;
-            if (currentCount >= LIMITS[icon]) {
-                showMessage(`❗ ${icon} 的數量已經達到上限 (${LIMITS[icon]}個)！若要放置請先移除舊的。`);
-                return;
+            if (treasures.filter(t => t.icon === icon).length >= LIMITS[icon]) {
+                showMessage(`❗ ${icon} 的數量已經達到上限！`); return;
             }
-
-            if (r + h > SIZE || c + w > SIZE) {
-                showMessage("❗ 軌道超出面板範圍了！");
-                return;
-            }
+            if (r + h > SIZE || c + w > SIZE) { showMessage("❗ 軌道超出範圍！"); return; }
 
             for (let i = 0; i < h; i++) {
                 for (let j = 0; j < w; j++) {
-                    if (board[r + i][c + j].treasureId !== 0) {
-                        showMessage("❗ 這裡已經有其他樂器軌道了！");
-                        return;
-                    }
+                    if (board[r + i][c + j].treasureId !== 0) { showMessage("❗ 這裡已經有其他軌道了！"); return; }
                 }
             }
 
-            const newTreasure = {
-                id: treasureIdCounter,
-                icon: icon,
-                cells: [],
-                size: w * h,
-                foundCount: 0
-            };
-
+            const newTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: w * h, foundCount: 0 };
             for (let i = 0; i < h; i++) {
                 for (let j = 0; j < w; j++) {
                     board[r + i][c + j].treasureId = treasureIdCounter;
@@ -590,36 +539,87 @@
                     const cellDiv = document.getElementById(`cell-${r + i}-${c + j}`);
                     cellDiv.classList.add('setup-treasure');
                     cellDiv.innerText = icon; 
-                    totalTreasureCells++;
                 }
             }
 
             treasures.push(newTreasure);
             treasureIdCounter++;
             showMessage(`✅ 成功放置 ${icon} 軌道！`);
-            
-            updateInventoryUI(); 
-            saveGame(); 
-            clearPreview(); 
-            handleCellHover(r, c); 
+            updateInventoryUI(); saveGame(); clearPreview(); handleCellHover(r, c); 
+        }
+
+        function getValidNeighbors(r, c, currentBlob) {
+            let neighbors = [];
+            const dirs = [[-1,0], [1,0], [0,-1], [0,1]]; 
+            for (let d of dirs) {
+                let nr = r + d[0]; let nc = c + d[1];
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                    if (board[nr][nc].treasureId === 0 && !currentBlob.some(b => b.r === nr && b.c === nc)) {
+                        neighbors.push({r: nr, c: nc});
+                    }
+                }
+            }
+            return neighbors;
+        }
+
+        function placeRandomBlob(targetSize, icon) {
+            let maxAttempts = 100;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                let startR = Math.floor(Math.random() * SIZE);
+                let startC = Math.floor(Math.random() * SIZE);
+
+                if (board[startR][startC].treasureId !== 0) continue;
+
+                let blobCells = [{r: startR, c: startC}];
+                let candidates = getValidNeighbors(startR, startC, blobCells);
+
+                while (blobCells.length < targetSize && candidates.length > 0) {
+                    let randIdx = Math.floor(Math.random() * candidates.length);
+                    let nextCell = candidates[randIdx];
+
+                    blobCells.push(nextCell);
+                    candidates.splice(randIdx, 1);
+
+                    let newNeighbors = getValidNeighbors(nextCell.r, nextCell.c, blobCells);
+                    for (let nn of newNeighbors) {
+                        if (!candidates.some(c => c.r === nn.r && c.c === nn.c)) {
+                            candidates.push(nn);
+                        }
+                    }
+                }
+
+                if (blobCells.length === targetSize) {
+                    const mysteryTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: targetSize, foundCount: 0 };
+                    blobCells.forEach(pos => {
+                        board[pos.r][pos.c].treasureId = treasureIdCounter;
+                        mysteryTreasure.cells.push({ r: pos.r, c: pos.c });
+                    });
+                    treasures.push(mysteryTreasure);
+                    treasureIdCounter++;
+                    return true;
+                }
+            }
+            return false;
         }
 
         function startGame() {
-            if (treasures.length === 0) {
-                showMessage("⚠️ 請至少放置一個樂器再開始製作！");
-                return;
-            }
+            if (treasures.length === 0) { showMessage("⚠️ 請至少放置一個樂器！"); return; }
+
+            const blobSuccess = placeRandomBlob(10, '👾');
 
             phase = 'play';
             document.getElementById('setup-panel').style.display = 'none';
             document.getElementById('play-panel').style.display = 'block';
             
-            updatePlayReferenceUI(); // 開始遊戲時繪製情報表
+            updatePlayReferenceUI();
 
-            showMessage("🎧 音樂製作開始！利用數字推論樂器位置。");
+            if (blobSuccess) {
+                showMessage("🚨 警告：偵測到 👾 狂熱旋律 (10格連鎖) 降臨！");
+            } else {
+                showMessage("🎧 音樂製作開始！(空間過於擁擠，未生成彩蛋)");
+            }
             
             clearPreview(); 
-
             for (let r = 0; r < SIZE; r++) {
                 for (let c = 0; c < SIZE; c++) {
                     const cellDiv = document.getElementById(`cell-${r}-${c}`);
@@ -635,12 +635,9 @@
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
                     if (i === 0 && j === 0) continue; 
-                    const nr = r + i;
-                    const nc = c + j;
+                    const nr = r + i; const nc = c + j;
                     if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                        if (board[nr][nc].treasureId !== 0) {
-                            count++;
-                        }
+                        if (board[nr][nc].treasureId !== 0) count++;
                     }
                 }
             }
@@ -664,30 +661,30 @@
                 if (count > 0) {
                     cellDiv.innerText = count;
                     cellDiv.classList.add(`n${count}`); 
-                } else {
-                    cellDiv.innerText = "";
-                }
+                } else cellDiv.innerText = "";
                 showMessage("這裡沒有音軌...");
             } else {
-                foundTreasureCells++;
                 const treasure = treasures.find(t => t.id === tId);
                 cellDiv.classList.add('hit');
                 cellDiv.innerText = treasure.icon; 
                 
-                score = Math.floor((foundTreasureCells / totalTreasureCells) * 100);
-                document.getElementById('score-display').innerText = score;
-
                 treasure.foundCount++;
 
                 if (treasure.foundCount === treasure.size) {
-                    showMessage(`✨ 太棒了！錄製完成了 ${treasure.icon} 的完美 Vibe！`);
-                    treasure.cells.forEach(pos => {
-                        document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('completed');
-                    });
-                    // 【新增】每當有一個樂器完整被找出來，就更新一次上方的情報表
+                    const pt = POINTS_MAP[treasure.size];
+                    score += pt;
+                    document.getElementById('score-display').innerText = score;
+
+                    if (treasure.icon === '👾') {
+                        showMessage(`🔥 狂暴！你捕獲了 👾 狂熱旋律，一口氣獲得 ${pt} 分！`);
+                    } else {
+                        showMessage(`✨ 太棒了！錄製完成了 ${treasure.icon} (+${pt} 分)`);
+                    }
+
+                    treasure.cells.forEach(pos => document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('completed'));
                     updatePlayReferenceUI();
                 } else {
-                    showMessage(`🔥 抓到 ${treasure.icon} 的一段旋律了！繼續推論！`);
+                    showMessage(`🔥 抓到 ${treasure.icon} 的一段旋律了！繼續找！`);
                 }
             }
 
@@ -698,13 +695,12 @@
             const allFound = treasures.every(t => t.foundCount === t.size);
             
             if (allFound) {
-                showMessage(`🎊 恭喜！你完成了神級專輯！總分：${movesLeft + 100}`);
-                document.getElementById('score-display').innerText = "100";
+                showMessage(`🎊 恭喜！你完成了神級專輯！最終得分：${score} 分！`);
                 movesLeft = 0; 
                 endGameDisplay();
                 clearSave(); 
             } else if (movesLeft === 0) {
-                showMessage("😢 製作精力耗盡... 專輯差一點就完成了。");
+                showMessage(`😢 製作精力耗盡... 最終得分：${score} 分。`);
                 endGameDisplay();
                 clearSave(); 
             } else {
@@ -725,9 +721,7 @@
             }
         }
 
-        function showMessage(msg) {
-            document.getElementById('message').innerText = msg;
-        }
+        function showMessage(msg) { document.getElementById('message').innerText = msg; }
 
         loadGameAndInit();
     </script>
