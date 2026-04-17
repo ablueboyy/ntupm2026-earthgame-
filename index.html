@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>流唱營：尋回失竊的樂章</title>
+    <title>ntupm earthgame</title>
     <style>
         :root {
-            --bg-color: #2c3e50; /* 配合火車夜間/懸疑氛圍，底色改為深藍灰 */
+            --bg-color: #2c3e50; 
             --panel-bg: #34495e;
-            --primary-color: #f1c40f; /* 探照燈/雷達的黃色 */
+            --primary-color: #f1c40f; 
             --secondary-color: #e67e22;
             --accent-color: #e74c3c;
             --cell-bg: #ecf0f1;
@@ -29,7 +29,6 @@
         h1 { margin-top: 10px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
         h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 10px; }
 
-        /* 故事背景區塊 */
         #story-box {
             max-width: 600px;
             margin: 0 auto 20px auto;
@@ -106,6 +105,12 @@
         button:hover { box-shadow: 0 0 10px var(--secondary-color); transform: translateY(-2px); }
         button:active { transform: translateY(1px); }
 
+        /* 對戰功能按鈕樣式 */
+        .btn-export { background: linear-gradient(45deg, #2980b9, #3498db); }
+        .btn-export:hover { box-shadow: 0 0 10px #3498db; }
+        .btn-import { background: linear-gradient(45deg, #8e44ad, #9b59b6); }
+        .btn-import:hover { box-shadow: 0 0 10px #9b59b6; }
+
         /* 關主按鈕樣式 */
         .gm-btn {
             width: auto;
@@ -180,7 +185,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 14px; 
-            color: #2c3e50; /* 數字顏色深一點 */
+            color: #2c3e50; 
             user-select: none; 
         }
 
@@ -198,7 +203,7 @@
 
         .cell.revealed { cursor: not-allowed; box-shadow: none; }
 
-        .cell.miss { background-color: #7f8c8d; } /* 沒中變成深灰色荒地 */
+        .cell.miss { background-color: #7f8c8d; } 
         .n1 { color: #3498db; }
         .n2 { color: #2ecc71; }
         .n3 { color: #e74c3c; }
@@ -228,17 +233,17 @@
 </head>
 <body>
 
-    <h1>🚂 流唱特快車：尋回失竊的樂章</h1>
+    <h1>🚂 ntupm earthgame</h1>
 
     <div id="story-box">
         <strong>⚠️ 突發狀況！</strong><br>
         各位旅客請注意，特快車已緊急停靠。前方準備在今晚開唱的樂團遭到襲擊，他們的樂器全被神祕的「怪盜」偷走，並就近掩埋在車站外的荒野中了！<br>
-        請各位小隊員立刻出動，透過大地任務獲取「雷達電量 (步數)」，掃描這片荒野，幫樂團找回失竊的樂器吧！
+        請各位小隊員立刻出動，透過大地遊戲獲取「雷達電量 (步數)」，掃描這片荒野，幫樂團找回失竊的樂器吧！
     </div>
 
     <div id="controls">
         <div id="setup-panel">
-            <h3>🧳 第一階段：怪盜藏匿點 (關主設定)</h3>
+            <h3>🧳 第一階段：藏匿樂器</h3>
             
             <div id="inventory-list" class="info-list"></div>
 
@@ -250,31 +255,37 @@
                 <option value="2,2,🥁">🥁 爵士鼓 (2x2 方塊) - 10分</option>
                 <option value="2,3,📻">📻 監聽音箱 (2寬x3高) - 15分</option>
             </select>
-            <button onclick="startGame()">佈置完成，啟動小隊雷達</button>
+            
             <p style="font-size:14px; color:#bdc3c7; margin-top:15px; line-height: 1.5;">
-                🔹 關主請在下方 15x15 的荒野中配置被偷走的器材。<br>
-                ✨ 開始後，系統將隨機空降 **怪盜的陷阱 (10格連鎖, 20分)**！
+                🔹 你們進入了怪盜的意識中，請幫助他在 15x15 的荒野中埋藏樂器。<br>
             </p>
+
+            <hr style="border-color: #7f8c8d; margin: 15px 0;">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn-export" onclick="exportCode()">📤 匯出藏匿密報</button>
+                <button class="btn-import" onclick="importCode()">📥 匯入對手藏匿密報</button>
+            </div>
+            <button onclick="startGame()" style="margin-top: 10px;">單機遊玩 (佈置完成，直接開始)</button>
         </div>
 
         <div id="play-panel" style="display: none;">
-            <h3>📡 第二階段：啟動雷達搜索</h3>
+            <h3>📡 第二階段：雷達搜索</h3>
             
             <div id="play-reference" class="info-list"></div>
 
             <div class="stats">
-                <div class="stat-item">尋回進度 (總分): <span id="score-display">0</span></div>
+                <div class="stat-item">總分: <span id="score-display">0</span></div>
                 <div class="stat-item">剩餘雷達電量 (步數): <span id="moves-display">0</span></div>
             </div>
 
             <div style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【關主專用：為小隊充電】</div>
-                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 闖關大勝 (+15步)</button>
-                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 闖關失敗 (+10步)</button>
+                <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【隨隊關主專用：為小隊充電】</div>
+                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 遊戲勝利 (+15步)</button>
+                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 遊戲失敗 (+10步)</button>
                 <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 破解彩蛋 (+5步)</button>
                 <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除電量 (-5步)</button>
                 <hr style="border-color: #7f8c8d; margin: 10px 0;">
-                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
+                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置（慎按！）</button>
             </div>
 
             <button onclick="restartGame()" style="background: transparent; border: 1px solid #e74c3c; color:#e74c3c; width:auto; padding: 8px 20px; margin-top: 5px;">重新一局 (清除存檔)</button>
@@ -326,6 +337,87 @@
         let score = 0;
         let movesLeft = DEFAULT_MOVES; 
         let treasureIdCounter = 1;
+        let totalTreasureCells = 0;
+
+        // 【對戰系統】匯出陣型代碼
+        function exportCode() {
+            if (treasures.length === 0) {
+                showMessage("⚠️ 請至少藏匿一個樂器再匯出！");
+                return;
+            }
+            try {
+                // 將 treasures 陣列轉為 Base64 字串
+                const codeString = btoa(encodeURIComponent(JSON.stringify(treasures)));
+                
+                // 嘗試自動複製到剪貼簿
+                navigator.clipboard.writeText(codeString).then(() => {
+                    alert("✅ 藏匿密報已成功複製！\n請傳送給你要挑戰的對手。");
+                    showMessage("📤 藏匿密報已複製，等待對手匯入...");
+                }).catch(err => {
+                    // 若瀏覽器不支援自動複製，提供手動複製視窗
+                    prompt("請手動複製以下代碼，並傳給對手：", codeString);
+                });
+            } catch (e) {
+                console.error("匯出失敗:", e);
+                alert("❌ 匯出失敗，請確認瀏覽器支援。");
+            }
+        }
+
+        // 【對戰系統】匯入對手代碼
+        function importCode() {
+            const codeString = prompt("📥 請貼上對手傳給你的藏匿密報：");
+            if (!codeString) return;
+
+            try {
+                const importedTreasures = JSON.parse(decodeURIComponent(atob(codeString)));
+                
+                // 驗證匯入的資料格式是否正確
+                if (!Array.isArray(importedTreasures)) throw new Error("Invalid Format");
+
+                // 清空現有棋盤並套用新資料
+                initBoard();
+                treasures = importedTreasures;
+                
+                // 重新計算 ID 計數器與總格數
+                treasureIdCounter = treasures.length > 0 ? Math.max(...treasures.map(t => t.id)) + 1 : 1;
+                totalTreasureCells = 0;
+
+                treasures.forEach(treasure => {
+                    totalTreasureCells += treasure.size;
+                    treasure.cells.forEach(pos => {
+                        board[pos.r][pos.c].treasureId = treasure.id;
+                    });
+                });
+
+                // 匯入完成後，自動空降怪盜陷阱
+                const blobSuccess = placeRandomBlob(10, '👾');
+
+                // 切換至遊玩階段
+                phase = 'play';
+                movesLeft = DEFAULT_MOVES;
+                score = 0;
+
+                document.getElementById('setup-panel').style.display = 'none';
+                document.getElementById('play-panel').style.display = 'block';
+                document.getElementById('moves-display').innerText = movesLeft;
+                document.getElementById('score-display').innerText = score;
+                
+                updatePlayReferenceUI();
+
+                if (blobSuccess) {
+                    showMessage("🚨 對手陣型匯入成功！任務開始！(已自動生成隨機陷阱)");
+                } else {
+                    showMessage("🚨 對手陣型匯入成功！任務開始！");
+                }
+                
+                clearPreview();
+                saveGame();
+
+            } catch (e) {
+                alert("❌ 匯入失敗！代碼無效或格式錯誤，請確認是否有複製完整（包含所有字母與等號）。");
+                console.error("匯入錯誤:", e);
+            }
+        }
 
         function addMoves(amount) {
             movesLeft += amount;
@@ -402,7 +494,7 @@
         }
 
         function saveGame() {
-            const gameState = { board, treasures, phase, score, movesLeft, treasureIdCounter };
+            const gameState = { board, treasures, phase, score, movesLeft, treasureIdCounter, totalTreasureCells };
             localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
         }
 
@@ -419,6 +511,7 @@
             const boardDiv = document.getElementById('board');
             boardDiv.innerHTML = '';
             board = [];
+            totalTreasureCells = 0;
             for (let r = 0; r < SIZE; r++) {
                 board[r] = [];
                 for (let c = 0; c < SIZE; c++) {
@@ -450,6 +543,7 @@
                 score = state.score;
                 movesLeft = state.movesLeft;
                 treasureIdCounter = state.treasureIdCounter;
+                totalTreasureCells = state.totalTreasureCells || 0;
 
                 const boardDiv = document.getElementById('board');
                 boardDiv.innerHTML = '';
@@ -499,7 +593,7 @@
                     showMessage("📡 系統連線成功！自動恢復先前的搜索進度。");
                 } else {
                     updateInventoryUI(); 
-                    showMessage("🎵 歡迎回來！關主請繼續掩埋樂器。");
+                    showMessage("🎵 歡迎回來！請繼續掩埋樂器。");
                 }
             } else {
                 initBoard();
@@ -564,6 +658,7 @@
                 cellDiv.innerText = ""; 
             });
 
+            totalTreasureCells -= treasure.size;
             treasures.splice(treasureIndex, 1);
             showMessage(`🗑️ 已挖出 ${treasure.icon}，請重新選擇掩埋地點！`);
             updateInventoryUI(); 
@@ -598,6 +693,7 @@
 
             treasures.push(newTreasure);
             treasureIdCounter++;
+            totalTreasureCells += w * h;
             showMessage(`✅ 成功隱藏 ${icon}！`);
             updateInventoryUI(); saveGame(); clearPreview(); handleCellHover(r, c); 
         }
@@ -650,12 +746,14 @@
                     });
                     treasures.push(mysteryTreasure);
                     treasureIdCounter++;
+                    totalTreasureCells += targetSize;
                     return true;
                 }
             }
             return false;
         }
 
+        // 單機遊玩按鈕
         function startGame() {
             if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
 
@@ -769,7 +867,7 @@
                         const cellDiv = document.getElementById(`cell-${r}-${c}`);
                         const treasure = treasures.find(t => t.id === board[r][c].treasureId);
                         cellDiv.innerText = treasure.icon; 
-                        cellDiv.style.backgroundColor = "#2c3e50"; /* 結算時未找出的變暗 */
+                        cellDiv.style.backgroundColor = "#2c3e50"; 
                         cellDiv.style.border = "1px solid #7f8c8d";
                     }
                 }
