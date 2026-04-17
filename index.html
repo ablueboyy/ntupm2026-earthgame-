@@ -165,8 +165,9 @@
 
         #board {
             display: grid;
-            grid-template-columns: repeat(15, 35px);
-            grid-template-rows: repeat(15, 35px);
+            /* 改為 16x16 */
+            grid-template-columns: repeat(16, 35px);
+            grid-template-rows: repeat(16, 35px);
             grid-gap: 3px;
             justify-content: center;
             min-width: max-content; 
@@ -257,7 +258,7 @@
             </select>
             
             <p style="font-size:14px; color:#bdc3c7; margin-top:15px; line-height: 1.5;">
-                🔹 你們進入了怪盜的意識中，請幫助他在 15x15 的荒野中埋藏樂器。<br>
+                🔹 你們進入了怪盜的意識中，請幫助他在 16x16 的荒野中埋藏樂器。<br>
             </p>
 
             <hr style="border-color: #7f8c8d; margin: 15px 0;">
@@ -299,13 +300,14 @@
     </div>
 
     <script>
+        // 數量限制已根據需求調整
         const LIMITS = {
-            '🎤': 8, 
+            '🎤': 10, // 原本 8 改為 10
             '🎸': 6, 
             '🪕': 6, 
             '🎹': 5, 
-            '🥁': 4,
-            '📻': 3
+            '🥁': 3,  // 原本 4 改為 3
+            '📻': 2   // 原本 3 改為 2
         };
 
         const NAMES_AND_SIZES = {
@@ -327,7 +329,7 @@
             10: 20  
         };
 
-        const SIZE = 15; 
+        const SIZE = 16; // 地圖邊長改為 16
         const SAVE_KEY = 'earthgame_save_data'; 
         const DEFAULT_MOVES = 0; 
         
@@ -339,22 +341,32 @@
         let treasureIdCounter = 1;
         let totalTreasureCells = 0;
 
-        // 【對戰系統】匯出陣型代碼
+        // 【壓縮方案專用映射】把 emoji 換成英文字母減少空間占用
+        const ICON_TO_CHAR = { '🎤':'A', '🎸':'B', '🪕':'C', '🎹':'D', '🥁':'E', '📻':'F', '👾':'G' };
+        const CHAR_TO_ICON = { 'A':'🎤', 'B':'🎸', 'C':'🪕', 'D':'🎹', 'E':'🥁', 'F':'📻', 'G':'👾' };
+
+        // 【對戰系統】匯出超縮短陣型代碼
         function exportCode() {
             if (treasures.length === 0) {
                 showMessage("⚠️ 請至少藏匿一個樂器再匯出！");
                 return;
             }
             try {
-                // 將 treasures 陣列轉為 Base64 字串
-                const codeString = btoa(encodeURIComponent(JSON.stringify(treasures)));
+                // 壓縮演算法：[符號對應字母] + [每個格子的 r(16進位) + c(16進位)]，物件之間用 '-' 隔開
+                // 因為 16x16 陣列，r 和 c 的最大值是 15 (hex: f)，所以只要各一個字元就能表示
+                const compressedString = treasures.map(t => {
+                    const charId = ICON_TO_CHAR[t.icon];
+                    const coords = t.cells.map(pos => pos.r.toString(16) + pos.c.toString(16)).join('');
+                    return charId + coords;
+                }).join('-');
                 
-                // 嘗試自動複製到剪貼簿
+                // Base64 編碼進一步混淆
+                const codeString = btoa(compressedString);
+                
                 navigator.clipboard.writeText(codeString).then(() => {
                     alert("✅ 藏匿密報已成功複製！\n請傳送給你要挑戰的對手。");
                     showMessage("📤 藏匿密報已複製，等待對手匯入...");
                 }).catch(err => {
-                    // 若瀏覽器不支援自動複製，提供手動複製視窗
                     prompt("請手動複製以下代碼，並傳給對手：", codeString);
                 });
             } catch (e) {
@@ -363,22 +375,41 @@
             }
         }
 
-        // 【對戰系統】匯入對手代碼
+        // 【對戰系統】匯入超縮短代碼
         function importCode() {
             const codeString = prompt("📥 請貼上對手傳給你的藏匿密報：");
             if (!codeString) return;
 
             try {
-                const importedTreasures = JSON.parse(decodeURIComponent(atob(codeString)));
+                // 還原壓縮字串
+                const decodedString = atob(codeString);
+                const parts = decodedString.split('-');
                 
-                // 驗證匯入的資料格式是否正確
-                if (!Array.isArray(importedTreasures)) throw new Error("Invalid Format");
+                const importedTreasures = parts.map((part, index) => {
+                    const icon = CHAR_TO_ICON[part[0]];
+                    const cells = [];
+                    // 每兩個字元為一組十六進位座標 (r, c)
+                    for (let i = 1; i < part.length; i += 2) {
+                        cells.push({
+                            r: parseInt(part[i], 16),
+                            c: parseInt(part[i+1], 16)
+                        });
+                    }
+                    return {
+                        id: index + 1,
+                        icon: icon,
+                        cells: cells,
+                        size: cells.length,
+                        foundCount: 0
+                    };
+                });
+                
+                if (importedTreasures.length === 0 || !importedTreasures[0].icon) throw new Error("Invalid Format");
 
                 // 清空現有棋盤並套用新資料
                 initBoard();
                 treasures = importedTreasures;
                 
-                // 重新計算 ID 計數器與總格數
                 treasureIdCounter = treasures.length > 0 ? Math.max(...treasures.map(t => t.id)) + 1 : 1;
                 totalTreasureCells = 0;
 
@@ -389,7 +420,7 @@
                     });
                 });
 
-                // 匯入完成後，自動空降怪盜陷阱
+                // 自動空降怪盜陷阱
                 const blobSuccess = placeRandomBlob(10, '👾');
 
                 // 切換至遊玩階段
@@ -414,7 +445,7 @@
                 saveGame();
 
             } catch (e) {
-                alert("❌ 匯入失敗！代碼無效或格式錯誤，請確認是否有複製完整（包含所有字母與等號）。");
+                alert("❌ 匯入失敗！代碼無效或格式錯誤。若對手是使用舊版遊戲匯出的，請請對方重新刷新頁面後再次匯出。");
                 console.error("匯入錯誤:", e);
             }
         }
@@ -753,7 +784,6 @@
             return false;
         }
 
-        // 單機遊玩按鈕
         function startGame() {
             if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
 
