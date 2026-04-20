@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ntupm earthgame</title>
+    <title>NTUPM earthgame</title>
     <style>
         :root {
             --bg-color: #2c3e50; 
@@ -24,9 +24,61 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            position: relative; 
         }
 
-        h1 { margin-top: 10px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        /* 右上角更新日誌按鈕 */
+        #update-log-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            width: auto;
+            margin: 0;
+        }
+        #update-log-btn:hover { background: #95a5a6; }
+
+        /* 更新日誌彈窗 */
+        .modal-overlay {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.7); 
+        }
+        .modal-content {
+            background-color: var(--panel-bg);
+            margin: 10% auto; 
+            padding: 20px 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            width: 80%; 
+            max-width: 500px;
+            color: var(--text-color);
+            text-align: left;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-btn {
+            color: #ccc;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: -5px;
+        }
+        .close-btn:hover { color: #fff; }
+
+        h1 { margin-top: 20px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
         h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 10px; }
 
         #story-box {
@@ -105,13 +157,13 @@
         button:hover { box-shadow: 0 0 10px var(--secondary-color); transform: translateY(-2px); }
         button:active { transform: translateY(1px); }
 
-        /* 對戰功能按鈕樣式 */
         .btn-export { background: linear-gradient(45deg, #2980b9, #3498db); }
         .btn-export:hover { box-shadow: 0 0 10px #3498db; }
         .btn-import { background: linear-gradient(45deg, #8e44ad, #9b59b6); }
         .btn-import:hover { box-shadow: 0 0 10px #9b59b6; }
+        .btn-random { background: linear-gradient(45deg, #16a085, #1abc9c); margin-top: 15px; }
+        .btn-random:hover { box-shadow: 0 0 10px #1abc9c; }
 
-        /* 關主按鈕樣式 */
         .gm-btn {
             width: auto;
             padding: 8px 12px;
@@ -133,6 +185,9 @@
         .btn-undo:hover { background: #e74c3c; box-shadow: 0 0 8px #e74c3c;}
         .btn-settle { background: #7f8c8d; width: 95%; margin-top: 10px; }
         .btn-settle:hover { background: #95a5a6; box-shadow: 0 0 8px #95a5a6;}
+
+        /* 標記模式切換按鈕 */
+        #mode-toggle-btn { background: #27ae60; border: 2px solid #fff; margin-bottom: 5px; }
 
         .stats {
             font-size: 18px;
@@ -165,7 +220,6 @@
 
         #board {
             display: grid;
-            /* 改為 16x16 */
             grid-template-columns: repeat(16, 35px);
             grid-template-rows: repeat(16, 35px);
             grid-gap: 3px;
@@ -203,6 +257,8 @@
         .cell.preview-invalid { background-color: rgba(231, 76, 60, 0.5); border: 2px dashed #c0392b; box-sizing: border-box; cursor: not-allowed; }
 
         .cell.revealed { cursor: not-allowed; box-shadow: none; }
+        
+        .cell.flagged { color: #e74c3c; font-size: 18px; text-shadow: none; }
 
         .cell.miss { background-color: #7f8c8d; } 
         .n1 { color: #3498db; }
@@ -234,7 +290,29 @@
 </head>
 <body>
 
-    <h1>🚂 ntupm earthgame</h1>
+    <button id="update-log-btn" onclick="openLog()">📜 更新日誌</button>
+
+    <div id="logModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLog()">&times;</span>
+            <h2 style="color: var(--primary-color); margin-top: 0;">📝 更新日誌</h2>
+
+            <h4 style="color: #fff; background: #27ae60; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0;">版本：v1.1.0 (4/20)</h4>
+            <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">
+                <li>新增「隨機生成並單機遊玩」按鈕，一鍵自動佈置所有樂器並給 90 步。</li>
+                <li>新增旗標功能。</li>
+            </ul>
+
+            <h4 style="color: #fff; background: #e67e22; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">版本：v1.0.0 (4/18)</h4>
+            <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">
+                <li>導入代碼系統。</li>
+                <li>地圖調整為 16x16，並優化各樂器庫存上限。</li>
+                <li>做試跑一前最後確認。</li>
+            </ul>
+        </div>
+    </div>
+
+    <h1>🚂 NTUPM earthgame</h1>
 
     <div id="story-box">
         <strong>⚠️ 突發狀況！</strong><br>
@@ -258,20 +336,22 @@
             </select>
             
             <p style="font-size:14px; color:#bdc3c7; margin-top:15px; line-height: 1.5;">
-                🔹 你們進入了怪盜的意識中，請幫助他在 16x16 的荒野中埋藏樂器。<br>
+                🔹 你們進入了怪盜的意識中，請幫助他在 16x16 的荒野中手動埋藏樂器。<br>
             </p>
 
             <hr style="border-color: #7f8c8d; margin: 15px 0;">
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button class="btn-export" onclick="exportCode()">📤 匯出藏匿密報</button>
-                <button class="btn-import" onclick="importCode()">📥 匯入對手藏匿密報</button>
+                <button class="btn-import" onclick="importCode()">📥 匯入對手密報</button>
             </div>
-            <button onclick="startGame()" style="margin-top: 10px;">單機遊玩 (佈置完成，直接開始)</button>
+            
+            <button onclick="startGame()" style="margin-top: 10px;">單機遊玩 (手動佈置完成，開始)</button>
+            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成滿載並單機遊玩 (90步)</button>
         </div>
 
         <div id="play-panel" style="display: none;">
             <h3>📡 第二階段：雷達搜索</h3>
-            
+
             <div id="play-reference" class="info-list"></div>
 
             <div class="stats">
@@ -286,7 +366,7 @@
                 <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 破解彩蛋 (+5步)</button>
                 <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除電量 (-5步)</button>
                 <hr style="border-color: #7f8c8d; margin: 10px 0;">
-                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置（慎按！）</button>
+                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
             </div>
 
             <button onclick="restartGame()" style="background: transparent; border: 1px solid #e74c3c; color:#e74c3c; width:auto; padding: 8px 20px; margin-top: 5px;">重新一局 (清除存檔)</button>
@@ -299,15 +379,19 @@
         <div id="board" onmouseleave="clearPreview()"></div>
     </div>
 
+    <div id="flag-controls" style="display: none; max-width: 320px; margin: 15px auto;">
+        <button id="mode-toggle-btn" onclick="toggleMode()">目前狀態：⛏️ 挖掘探測模式</button>
+        <p style="font-size: 14px; color: #bdc3c7; margin-top: 5px;">💡 提示：電腦版可直接對格子按「滑鼠右鍵」插旗</p>
+    </div>
+
     <script>
-        // 數量限制已根據需求調整
         const LIMITS = {
-            '🎤': 10, // 原本 8 改為 10
+            '🎤': 10, 
             '🎸': 6, 
             '🪕': 6, 
             '🎹': 5, 
-            '🥁': 3,  // 原本 4 改為 3
-            '📻': 2   // 原本 3 改為 2
+            '🥁': 3,
+            '📻': 2
         };
 
         const NAMES_AND_SIZES = {
@@ -329,10 +413,17 @@
             10: 20  
         };
 
-        const SIZE = 16; // 地圖邊長改為 16
+        const SIZE = 16; 
         const SAVE_KEY = 'earthgame_save_data'; 
         const DEFAULT_MOVES = 0; 
         
+        const ICON_TO_CHAR = { '🎤':'A', '🎸':'B', '🪕':'C', '🎹':'D', '🥁':'E', '📻':'F', '👾':'G' };
+        const CHAR_TO_ICON = { 'A':'🎤', 'B':'🎸', 'C':'🪕', 'D':'🎹', 'E':'🥁', 'F':'📻', 'G':'👾' };
+        const SHAPE_MAP = {
+            '🎤': {w:1, h:1}, '🎸': {w:2, h:1}, '🪕': {w:1, h:2},
+            '🎹': {w:3, h:1}, '🥁': {w:2, h:2}, '📻': {w:2, h:3}
+        };
+
         let board = [];
         let treasures = [];
         let phase = 'setup'; 
@@ -340,28 +431,36 @@
         let movesLeft = DEFAULT_MOVES; 
         let treasureIdCounter = 1;
         let totalTreasureCells = 0;
+        let isFlagMode = false; 
 
-        // 【壓縮方案專用映射】把 emoji 換成英文字母減少空間占用
-        const ICON_TO_CHAR = { '🎤':'A', '🎸':'B', '🪕':'C', '🎹':'D', '🥁':'E', '📻':'F', '👾':'G' };
-        const CHAR_TO_ICON = { 'A':'🎤', 'B':'🎸', 'C':'🪕', 'D':'🎹', 'E':'🥁', 'F':'📻', 'G':'👾' };
+        function openLog() { document.getElementById('logModal').style.display = 'block'; }
+        function closeLog() { document.getElementById('logModal').style.display = 'none'; }
 
-        // 【對戰系統】匯出超縮短陣型代碼
+        function toggleMode() {
+            isFlagMode = !isFlagMode;
+            const btn = document.getElementById('mode-toggle-btn');
+            if (isFlagMode) {
+                btn.innerText = "目前狀態：❌ 空地標記模式";
+                btn.style.background = "#e74c3c";
+            } else {
+                btn.innerText = "目前狀態：⛏️ 挖掘探測模式";
+                btn.style.background = "#27ae60";
+            }
+        }
+
         function exportCode() {
             if (treasures.length === 0) {
                 showMessage("⚠️ 請至少藏匿一個樂器再匯出！");
                 return;
             }
             try {
-                // 壓縮演算法：[符號對應字母] + [每個格子的 r(16進位) + c(16進位)]，物件之間用 '-' 隔開
-                // 因為 16x16 陣列，r 和 c 的最大值是 15 (hex: f)，所以只要各一個字元就能表示
                 const compressedString = treasures.map(t => {
                     const charId = ICON_TO_CHAR[t.icon];
                     const coords = t.cells.map(pos => pos.r.toString(16) + pos.c.toString(16)).join('');
                     return charId + coords;
                 }).join('-');
                 
-                // Base64 編碼進一步混淆
-                const codeString = btoa(compressedString);
+                const codeString = "NTU-" + btoa(compressedString);
                 
                 navigator.clipboard.writeText(codeString).then(() => {
                     alert("✅ 藏匿密報已成功複製！\n請傳送給你要挑戰的對手。");
@@ -375,20 +474,20 @@
             }
         }
 
-        // 【對戰系統】匯入超縮短代碼
         function importCode() {
-            const codeString = prompt("📥 請貼上對手傳給你的藏匿密報：");
+            let codeString = prompt("📥 請貼上對手傳給你的藏匿密報：");
             if (!codeString) return;
+            codeString = codeString.trim();
 
             try {
-                // 還原壓縮字串
-                const decodedString = atob(codeString);
+                if (!codeString.startsWith("NTU-")) throw new Error("Invalid Code");
+
+                const decodedString = atob(codeString.substring(4));
                 const parts = decodedString.split('-');
                 
                 const importedTreasures = parts.map((part, index) => {
                     const icon = CHAR_TO_ICON[part[0]];
                     const cells = [];
-                    // 每兩個字元為一組十六進位座標 (r, c)
                     for (let i = 1; i < part.length; i += 2) {
                         cells.push({
                             r: parseInt(part[i], 16),
@@ -396,20 +495,14 @@
                         });
                     }
                     return {
-                        id: index + 1,
-                        icon: icon,
-                        cells: cells,
-                        size: cells.length,
-                        foundCount: 0
+                        id: index + 1, icon: icon, cells: cells, size: cells.length, foundCount: 0
                     };
                 });
                 
-                if (importedTreasures.length === 0 || !importedTreasures[0].icon) throw new Error("Invalid Format");
+                if (importedTreasures.length === 0 || !importedTreasures[0].icon) throw new Error("Format Error");
 
-                // 清空現有棋盤並套用新資料
                 initBoard();
                 treasures = importedTreasures;
-                
                 treasureIdCounter = treasures.length > 0 ? Math.max(...treasures.map(t => t.id)) + 1 : 1;
                 totalTreasureCells = 0;
 
@@ -420,32 +513,13 @@
                     });
                 });
 
-                // 自動空降怪盜陷阱
                 const blobSuccess = placeRandomBlob(10, '👾');
 
-                // 切換至遊玩階段
-                phase = 'play';
                 movesLeft = DEFAULT_MOVES;
-                score = 0;
-
-                document.getElementById('setup-panel').style.display = 'none';
-                document.getElementById('play-panel').style.display = 'block';
-                document.getElementById('moves-display').innerText = movesLeft;
-                document.getElementById('score-display').innerText = score;
-                
-                updatePlayReferenceUI();
-
-                if (blobSuccess) {
-                    showMessage("🚨 對手陣型匯入成功！任務開始！(已自動生成隨機陷阱)");
-                } else {
-                    showMessage("🚨 對手陣型匯入成功！任務開始！");
-                }
-                
-                clearPreview();
-                saveGame();
+                executePlayPhase(blobSuccess, "🚨 對手陣型匯入成功！任務開始！");
 
             } catch (e) {
-                alert("❌ 匯入失敗！代碼無效或格式錯誤。若對手是使用舊版遊戲匯出的，請請對方重新刷新頁面後再次匯出。");
+                alert("❌ 匯入失敗！代碼無效。請確認對手提供的是「NTU-」開頭的新版代碼。");
                 console.error("匯入錯誤:", e);
             }
         }
@@ -543,15 +617,21 @@
             boardDiv.innerHTML = '';
             board = [];
             totalTreasureCells = 0;
+            document.getElementById('flag-controls').style.display = 'none'; // 設定階段隱藏旗標區塊
+
             for (let r = 0; r < SIZE; r++) {
                 board[r] = [];
                 for (let c = 0; c < SIZE; c++) {
-                    board[r][c] = { treasureId: 0, revealed: false };
+                    board[r][c] = { treasureId: 0, revealed: false, flagged: false };
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.id = `cell-${r}-${c}`;
                     cell.onclick = () => handleCellClick(r, c);
                     cell.onmouseenter = () => handleCellHover(r, c);
+                    cell.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        if (phase === 'play') toggleFlag(r, c);
+                    };
                     boardDiv.appendChild(cell);
                 }
             }
@@ -562,11 +642,7 @@
             const savedData = localStorage.getItem(SAVE_KEY);
             if (savedData) {
                 const state = JSON.parse(savedData);
-                
-                if (!state.board || state.board.length !== SIZE) {
-                    initBoard();
-                    return;
-                }
+                if (!state.board || state.board.length !== SIZE) { initBoard(); return; }
 
                 board = state.board;
                 treasures = state.treasures;
@@ -585,6 +661,10 @@
                         cell.id = `cell-${r}-${c}`;
                         cell.onclick = () => handleCellClick(r, c);
                         cell.onmouseenter = () => handleCellHover(r, c);
+                        cell.oncontextmenu = (e) => {
+                            e.preventDefault();
+                            if (phase === 'play') toggleFlag(r, c);
+                        };
 
                         const cellData = board[r][c];
                         if (phase === 'setup' && cellData.treasureId !== 0) {
@@ -610,6 +690,9 @@
                                     cell.classList.add('completed');
                                 }
                             }
+                        } else if (cellData.flagged && phase === 'play') {
+                            cell.innerText = "❌";
+                            cell.classList.add('flagged');
                         }
                         boardDiv.appendChild(cell);
                     }
@@ -618,11 +701,13 @@
                 if (phase === 'play') {
                     document.getElementById('setup-panel').style.display = 'none';
                     document.getElementById('play-panel').style.display = 'block';
+                    document.getElementById('flag-controls').style.display = 'block'; // 顯示旗標按鈕
                     document.getElementById('score-display').innerText = score;
                     document.getElementById('moves-display').innerText = movesLeft;
                     updatePlayReferenceUI();
                     showMessage("📡 系統連線成功！自動恢復先前的搜索進度。");
                 } else {
+                    document.getElementById('flag-controls').style.display = 'none';
                     updateInventoryUI(); 
                     showMessage("🎵 歡迎回來！請繼續掩埋樂器。");
                 }
@@ -674,7 +759,27 @@
             if (phase === 'setup') {
                 if (board[r][c].treasureId !== 0) removeTreasure(r, c);
                 else placeTreasure(r, c);
-            } else if (phase === 'play') revealCell(r, c);
+            } else if (phase === 'play') {
+                if (isFlagMode) {
+                    toggleFlag(r, c);
+                } else {
+                    revealCell(r, c);
+                }
+            }
+        }
+
+        function toggleFlag(r, c) {
+            if (phase !== 'play' || board[r][c].revealed) return;
+            board[r][c].flagged = !board[r][c].flagged;
+            const cellDiv = document.getElementById(`cell-${r}-${c}`);
+            if (board[r][c].flagged) {
+                cellDiv.innerText = "❌";
+                cellDiv.classList.add('flagged');
+            } else {
+                cellDiv.innerText = "";
+                cellDiv.classList.remove('flagged');
+            }
+            saveGame();
         }
 
         function removeTreasure(r, c) {
@@ -727,6 +832,35 @@
             totalTreasureCells += w * h;
             showMessage(`✅ 成功隱藏 ${icon}！`);
             updateInventoryUI(); saveGame(); clearPreview(); handleCellHover(r, c); 
+        }
+
+        function placeRandomTreasure(w, h, icon) {
+            let maxAttempts = 100;
+            for(let attempt = 0; attempt < maxAttempts; attempt++) {
+                let r = Math.floor(Math.random() * (SIZE - h + 1));
+                let c = Math.floor(Math.random() * (SIZE - w + 1));
+                let canPlace = true;
+                for (let i = 0; i < h; i++) {
+                    for (let j = 0; j < w; j++) {
+                        if (board[r + i][c + j].treasureId !== 0) { canPlace = false; break; }
+                    }
+                    if (!canPlace) break;
+                }
+                if (canPlace) {
+                    const newTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: w * h, foundCount: 0 };
+                    for (let i = 0; i < h; i++) {
+                        for (let j = 0; j < w; j++) {
+                            board[r + i][c + j].treasureId = treasureIdCounter;
+                            newTreasure.cells.push({ r: r + i, c: c + j });
+                        }
+                    }
+                    treasures.push(newTreasure);
+                    treasureIdCounter++;
+                    totalTreasureCells += w * h;
+                    return true;
+                }
+            }
+            return false;
         }
 
         function getValidNeighbors(r, c, currentBlob) {
@@ -786,20 +920,37 @@
 
         function startGame() {
             if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
-
             const blobSuccess = placeRandomBlob(10, '👾');
+            executePlayPhase(blobSuccess, "🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
+        }
 
+        function randomStartGame() {
+            if(confirm("確定要隨機生成滿載地圖並以 90 步開始嗎？原本的配置將會被清除！")) {
+                initBoard(); 
+                for (let icon in LIMITS) {
+                    let limit = LIMITS[icon];
+                    let shape = SHAPE_MAP[icon];
+                    for(let i=0; i<limit; i++) { placeRandomTreasure(shape.w, shape.h, icon); }
+                }
+                const blobSuccess = placeRandomBlob(10, '👾');
+                movesLeft = 90; 
+                executePlayPhase(blobSuccess, "🎲 隨機滿載地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
+            }
+        }
+
+        function executePlayPhase(blobSuccess, defaultMsg) {
             phase = 'play';
+            score = 0;
             document.getElementById('setup-panel').style.display = 'none';
             document.getElementById('play-panel').style.display = 'block';
+            document.getElementById('flag-controls').style.display = 'block'; // 顯示底部的旗標切換
+            document.getElementById('moves-display').innerText = movesLeft;
+            document.getElementById('score-display').innerText = score;
             
             updatePlayReferenceUI();
 
-            if (blobSuccess) {
-                showMessage("🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
-            } else {
-                showMessage("🚨 任務開始！(空間過於擁擠，未生成怪盜陷阱)");
-            }
+            if (blobSuccess) { showMessage(defaultMsg + " (已產生 👾 神秘彩蛋)"); } 
+            else { showMessage(defaultMsg); }
             
             clearPreview(); 
             for (let r = 0; r < SIZE; r++) {
@@ -827,11 +978,12 @@
         }
 
         function revealCell(r, c) {
+            if (board[r][c].revealed || board[r][c].flagged) return; 
+
             if (movesLeft <= 0) {
                 showMessage("⚠️ 雷達電量不足！請小隊先去完成關卡任務充電。");
                 return;
             }
-            if (board[r][c].revealed) return;
 
             board[r][c].revealed = true;
             movesLeft--;
@@ -902,6 +1054,7 @@
                     }
                 }
             }
+            document.getElementById('flag-controls').style.display = 'none'; // 結算後隱藏旗標按鈕
         }
 
         function showMessage(msg) { document.getElementById('message').innerText = msg; }
