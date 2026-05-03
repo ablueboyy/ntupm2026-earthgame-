@@ -60,12 +60,12 @@
         .modal-content {
             background-color: var(--panel-bg);
             margin: 10% auto; 
-            padding: 20px; /* 稍微縮小內距以適應手機 */
+            padding: 20px; 
             border: 2px solid var(--primary-color);
             border-radius: 12px;
-            width: 90%; /* 寬度改為 90% 更適合手機 */
+            width: 90%; 
             max-width: 500px;
-            box-sizing: border-box; /* 關鍵修復：確保 padding 不會撐破寬度 */
+            box-sizing: border-box; 
             color: var(--text-color);
             text-align: left;
             position: relative;
@@ -310,7 +310,6 @@
             color: #e58321;
             font-size: 1.15em;
             font-weight: 900;
-            /*text-shadow: 0 0 8px rgba(231, 76, 60, 0.7);*/
         }
     </style>
 </head>
@@ -318,14 +317,14 @@
 
     <div class="top-right-nav">
         <button id="egg-log-btn" class="nav-btn" onclick="openEggLog()">💿 專輯曲目</button>
-        <button id="update-log-btn" class="nav-btn" onclick="openLog()">📜 更新日誌</button>
+        <button id="update-log-btn" class="nav-btn" onclick="openLog()">📜 更新紀錄</button>
     </div>
 
     <!-- 更新日誌彈窗 -->
     <div id="logModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="closeLog()">&times;</span>
-            <h2 style="color: var(--primary-color); margin-top: 0;">📝 更新日誌</h2>
+            <h2 style="color: var(--primary-color); margin-top: 0;">📝 Update Log</h2>
             <div id="log-list-container">
                 <!-- 由 JS 動態載入 -->
             </div>
@@ -395,7 +394,6 @@
             <div style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
                 <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【隨隊關主專用：為小隊充電】</div>
                 
-                <!-- 精準步數對帳紀錄看板 -->
                 <div id="gm-stats-panel" style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; margin-bottom: 10px; text-align: center; color: #bdc3c7; font-size: 13px;">
                     📊 操作紀錄：勝利 <span id="stat-win" style="color:#2ecc71; font-weight:bold;">0</span> 次 | 
                     失敗 <span id="stat-lose" style="color:#e67e22; font-weight:bold;">0</span> 次 | 
@@ -431,8 +429,8 @@
 
     <script>
         const LIMITS = { '🎤': 10, '🎸': 6, '🪕': 6, '🎹': 5, '🥁': 3, '📻': 2 };
-        const NAMES_AND_SIZES = { '🎤': '麥克風 (1x1)', '🎸': '電吉他 (2x1)', '🪕': '貝斯 (1x2)', '🎹': '電子琴 (3x1)', '🥁': '爵士鼓 (2x2)', '📻': '監聽音箱 (2x3)', '👾': '怪盜的陷阱 (10格連鎖)' };
-        const POINTS_MAP = { 1: 1, 2: 3, 3: 6, 4: 10, 6: 15, 10: 20 };
+        const NAMES_AND_SIZES = { '🎤': '麥克風 (1x1)', '🎸': '電吉他 (2x1)', '🪕': '貝斯 (1x2)', '🎹': '電子琴 (3x1)', '🥁': '爵士鼓 (2x2)', '📻': '監聽音箱 (2x3)', '👾': '怪盜的陷阱 (8格連鎖)' };
+        const POINTS_MAP = { 1: 1, 2: 3, 3: 6, 4: 10, 6: 15, 8: 18, 10: 20 };
         const SIZE = 16; 
         const SAVE_KEY = 'earthgame_save_data'; 
         const DEFAULT_MOVES = 0; 
@@ -452,12 +450,13 @@
         let isFlagMode = false; 
         let modeToggleCount = 0; 
 
-        let gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
+        let gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
         let easterEggs = {};
 
         function initData() {
-            // 從 data.js 中載入並深拷貝彩蛋設定
-            easterEggs = JSON.parse(JSON.stringify(EASTER_EGGS));
+            if (typeof EASTER_EGGS !== 'undefined') {
+                easterEggs = JSON.parse(JSON.stringify(EASTER_EGGS));
+            }
         }
 
         function openLog() { 
@@ -476,20 +475,16 @@
         window.onclick = function(event) {
             const logModal = document.getElementById('logModal');
             const eggModal = document.getElementById('eggModal');
-            if (event.target === logModal) {
-                closeLog();
-            }
-            if (event.target === eggModal) {
-                closeEggLog();
-            }
+            if (event.target === logModal) closeLog();
+            if (event.target === eggModal) closeEggLog();
         }
 
-        // 從 data.js 動態渲染更新日誌
         function renderUpdateLogs() {
+            if (typeof UPDATE_LOGS === 'undefined') return;
             const container = document.getElementById('log-list-container');
             container.innerHTML = '';
             UPDATE_LOGS.forEach(log => {
-                let html = `<h4 style="color: #fff; background: ${log.color}; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">版本：${log.version} (${log.date})</h4>
+                let html = `<h4 style="color: #fff; background: ${log.color}; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">Ver：${log.version} (${log.date})</h4>
                 <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">`;
                 log.items.forEach(item => { html += `<li>${item}</li>`; });
                 html += `</ul>`;
@@ -497,14 +492,11 @@
             });
         }
 
-        // 動態渲染彩蛋圖鑑 (加入藏頭高亮效果)
         function renderEggList() {
             const container = document.getElementById('egg-list-container');
             container.innerHTML = '';
             for (let key in easterEggs) {
                 const egg = easterEggs[key];
-                
-                // 使用 Regex 自動把《》內的第一個字母標記出來
                 const stylizedName = egg.name.replace(/《(.)(.*?)》/, '《<span class="acrostic-letter">$1</span>$2》');
 
                 const div = document.createElement('div');
@@ -544,6 +536,24 @@
             if (!code) return;
             code = code.trim();
 
+            // 👻 作者隱藏彩蛋：絕對不在圖鑑中顯示
+            if (code === 'ablueboyy') {
+                if (gmStats.authorUnlocked) {
+                    alert("⚠️ 作者已經感謝過你啦！");
+                    return;
+                }
+                alert("作者感謝你的遊玩 偷偷給你10步 很多喔 然後這個密碼是我的哀居 如果你有找到這個彩蛋可以加我讓我知道你很厲害");
+                gmStats.authorUnlocked = true;
+                movesLeft += 10;
+                gmStats.total += 10;
+                gmStats.secret++;
+                document.getElementById('moves-display').innerText = movesLeft;
+                updateGMStatsUI();
+                saveGame();
+                showMessage(`🎉 觸發開發者專屬隱藏彩蛋！獲得 10 步。`);
+                return;
+            }
+
             let foundEgg = null;
             for (let key in easterEggs) {
                 if (easterEggs[key].code === code) {
@@ -574,7 +584,6 @@
                 btn.style.background = "#27ae60";
             }
 
-            // 彩蛋：連續點擊觸發 (Track 06 change)
             if (phase === 'play') {
                 modeToggleCount++;
                 if (modeToggleCount === 10 && easterEggs['egg6'] && !easterEggs['egg6'].unlocked) {
@@ -643,11 +652,13 @@
                     });
                 });
 
-                const blobSuccess = placeRandomBlob(10, '👾');
+                const b1 = placeRandomBlob(8, '👾');
+                const b2 = placeRandomBlob(8, '👾');
+                let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
 
                 movesLeft = DEFAULT_MOVES;
-                gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
-                executePlayPhase(blobSuccess, "🚨 對手陣型匯入成功！任務開始！");
+                gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
+                executePlayPhase(blobCount, "🚨 對手陣型匯入成功！任務開始！");
 
             } catch (e) {
                 alert("❌ 匯入失敗！代碼無效。請確認對手提供的是「NTU-」開頭的新版代碼。");
@@ -771,8 +782,18 @@
             const boardDiv = document.getElementById('board');
             boardDiv.innerHTML = '';
             board = [];
+            treasures = []; 
+            treasureIdCounter = 1;
             totalTreasureCells = 0;
             document.getElementById('flag-controls').style.display = 'none';
+            
+            isFlagMode = false;
+            modeToggleCount = 0;
+            const toggleBtn = document.getElementById('mode-toggle-btn');
+            if (toggleBtn) {
+                toggleBtn.innerText = "目前狀態：⛏️ 挖掘探測模式";
+                toggleBtn.style.background = "#27ae60";
+            }
 
             for (let r = 0; r < SIZE; r++) {
                 board[r] = [];
@@ -1043,13 +1064,78 @@
             return neighbors;
         }
 
+        function findMostEmptyCell() {
+            let dist = Array.from({length: SIZE}, () => Array(SIZE).fill(Infinity));
+            let queue = [];
+            
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if (board[r][c].treasureId !== 0) {
+                        dist[r][c] = 0;
+                        queue.push({r, c});
+                    }
+                }
+            }
+            
+            if (queue.length === 0) return {r: Math.floor(SIZE/2), c: Math.floor(SIZE/2)};
+            
+            const dirs = [[-1,0], [1,0], [0,-1], [0,1]];
+            let head = 0;
+            while(head < queue.length) {
+                let {r, c} = queue[head++];
+                for(let d of dirs) {
+                    let nr = r + d[0], nc = c + d[1];
+                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                        if (dist[r][c] + 1 < dist[nr][nc]) {
+                            dist[nr][nc] = dist[r][c] + 1;
+                            queue.push({r: nr, c: nc});
+                        }
+                    }
+                }
+            }
+            
+            let maxDist = -1;
+            let candidates = [];
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if (board[r][c].treasureId === 0) {
+                        if (dist[r][c] > maxDist) {
+                            maxDist = dist[r][c];
+                            candidates = [{r, c}];
+                        } else if (dist[r][c] === maxDist) {
+                            candidates.push({r, c});
+                        }
+                    }
+                }
+            }
+            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+            return null;
+        }
+
         function placeRandomBlob(targetSize, icon) {
             let maxAttempts = 100;
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                let startR = Math.floor(Math.random() * SIZE);
-                let startC = Math.floor(Math.random() * SIZE);
-
-                if (board[startR][startC].treasureId !== 0) continue;
+                let startR, startC;
+                
+                if (attempt < 20) {
+                    let startCell = findMostEmptyCell();
+                    if (!startCell) return false; 
+                    
+                    let rOffset = Math.floor(Math.random() * 3) - 1; 
+                    let cOffset = Math.floor(Math.random() * 3) - 1;
+                    
+                    startR = Math.max(0, Math.min(SIZE - 1, startCell.r + rOffset));
+                    startC = Math.max(0, Math.min(SIZE - 1, startCell.c + cOffset));
+                    
+                    if (board[startR][startC].treasureId !== 0) {
+                        startR = startCell.r;
+                        startC = startCell.c;
+                    }
+                } else {
+                    startR = Math.floor(Math.random() * SIZE);
+                    startC = Math.floor(Math.random() * SIZE);
+                    if (board[startR][startC].treasureId !== 0) continue;
+                }
 
                 let blobCells = [{r: startR, c: startC}];
                 let candidates = getValidNeighbors(startR, startC, blobCells);
@@ -1086,12 +1172,15 @@
 
         function startGame() {
             if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
-            const blobSuccess = placeRandomBlob(10, '👾');
             
-            gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
+            const b1 = placeRandomBlob(8, '👾');
+            const b2 = placeRandomBlob(8, '👾');
+            let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
+            
+            gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
             updateGMStatsUI();
             
-            executePlayPhase(blobSuccess, "🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
+            executePlayPhase(blobCount, "🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
         }
 
         function randomStartGame() {
@@ -1102,17 +1191,20 @@
                     let shape = SHAPE_MAP[icon];
                     for(let i=0; i<limit; i++) { placeRandomTreasure(shape.w, shape.h, icon); }
                 }
-                const blobSuccess = placeRandomBlob(10, '👾');
-                movesLeft = 90; 
                 
-                gmStats = { win: 0, lose: 0, secret: 0, total: 90 };
+                const b1 = placeRandomBlob(8, '👾');
+                const b2 = placeRandomBlob(8, '👾');
+                let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
+                
+                movesLeft = 90; 
+                gmStats = { win: 0, lose: 0, secret: 0, total: 90, authorUnlocked: false };
                 updateGMStatsUI();
 
-                executePlayPhase(blobSuccess, "🎲 隨機滿載地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
+                executePlayPhase(blobCount, "🎲 隨機滿載地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
             }
         }
 
-        function executePlayPhase(blobSuccess, defaultMsg) {
+        function executePlayPhase(blobCount, defaultMsg) {
             phase = 'play';
             score = 0;
             document.getElementById('setup-panel').style.display = 'none';
@@ -1123,8 +1215,11 @@
             
             updatePlayReferenceUI();
 
-            if (blobSuccess) { showMessage(defaultMsg + " (已產生 👾 神秘彩蛋)"); } 
-            else { showMessage(defaultMsg); }
+            if (blobCount > 0) { 
+                showMessage(defaultMsg + ` (已產生 ${blobCount} 個 👾 神秘彩蛋)`); 
+            } else { 
+                showMessage(defaultMsg); 
+            }
             
             clearPreview(); 
             for (let r = 0; r < SIZE; r++) {

@@ -1,31 +1,39 @@
 // 這裡維護所有的更新日誌
 const UPDATE_LOGS = [
     {
+        version: "v1.2.1",
+        date: "5/3",
+        color: "#8e44ad", // 紫色
+        items: [
+            "Modify some detail of Easter eggs","Change the randomize item into two and less its score."
+        ]
+    },
+    {
         version: "v1.2.0",
         date: "5/3",
         color: "#8e44ad", // 紫色
         items: [
-            "對帳紀錄看板：隨隊關主現在可以看到按鈕點擊次數與總步數發放紀錄。",
-            "密語彩蛋系統：「破解彩蛋」需輸入指定密語。",
-            "新增彩蛋圖鑑系統，解鎖條件後即可點亮成就並獲得相對應的步數獎勵！"
+            "You can now view the button click count and the total step distribution history.",
+            "Added an Easter Egg system; enter specific secret codes or meet certain conditions to earn steps.",
+            "Added an Easter Egg Gallery to view all unlocked secrets and it's an easter egg here: enter \"ablueboyy\" to get 10 moves."
         ]
     },
     {
         version: "v1.1.0",
         date: "4/20",
-        color: "#27ae60", // 綠色
+        color: "#27ae60", // Green
         items: [
-            "新增「隨機生成滿載並單機遊玩」按鈕，一鍵自動佈置所有樂器並給予 90 步。",
-            "新增「空地標記 (❌)」功能，並優化切換按鈕位置。"
+            "Added 'Random Generation & Single Player' mode: automatically place all instruments and set steps to 90 with one click.",
+            "Added marking functionality and optimized the positioning of the toggle buttons."
         ]
     },
     {
         version: "v1.0.0",
         date: "4/19",
-        color: "#e67e22", // 橘色
+        color: "#e67e22", // Orange
         items: [
-            "導入超壓縮陣型代碼 (NTU-xxx)，移除舊版長代碼系統。",
-            "地圖調整為 16x16，並優化各樂器庫存上限。"
+            "Implemented the Formation Code system.",
+            "Adjusted the map to 16x16 and updated the inventory limits for each instrument."
         ]
     }
 ];
