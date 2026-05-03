@@ -106,7 +106,7 @@ const EASTER_EGGS = {
     'egg9': { 
         id: 'egg9', 
         name: 'Track 09.《password》', 
-        code: 'song-密碼', 
+        code: '密碼', 
         steps: 2, 
         hint: '請輸入密碼' 
     },
