@@ -27,11 +27,14 @@
             position: relative; 
         }
 
-        /* 右上角更新日誌按鈕 */
-        #update-log-btn {
+        .top-right-nav {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-btn {
             background: #7f8c8d;
             color: white;
             border: none;
@@ -40,12 +43,13 @@
             font-size: 14px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            width: auto;
             margin: 0;
+            font-weight: bold;
         }
-        #update-log-btn:hover { background: #95a5a6; }
+        .nav-btn:hover { background: #95a5a6; }
+        #egg-log-btn { background: #8e44ad; }
+        #egg-log-btn:hover { background: #9b59b6; }
 
-        /* 更新日誌彈窗 */
         .modal-overlay {
             display: none; 
             position: fixed; 
@@ -56,11 +60,12 @@
         .modal-content {
             background-color: var(--panel-bg);
             margin: 10% auto; 
-            padding: 20px 30px;
+            padding: 20px; /* 稍微縮小內距以適應手機 */
             border: 2px solid var(--primary-color);
             border-radius: 12px;
-            width: 80%; 
+            width: 90%; /* 寬度改為 90% 更適合手機 */
             max-width: 500px;
+            box-sizing: border-box; /* 關鍵修復：確保 padding 不會撐破寬度 */
             color: var(--text-color);
             text-align: left;
             position: relative;
@@ -78,7 +83,7 @@
         }
         .close-btn:hover { color: #fff; }
 
-        h1 { margin-top: 20px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        h1 { margin-top: 40px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
         h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 10px; }
 
         #story-box {
@@ -92,6 +97,7 @@
             font-size: 15px;
             line-height: 1.6;
             color: #ddd;
+            box-sizing: border-box;
         }
 
         #controls {
@@ -103,6 +109,7 @@
             display: inline-block;
             border: 1px solid #7f8c8d;
             min-width: 320px;
+            box-sizing: border-box;
         }
 
         .info-list {
@@ -186,7 +193,6 @@
         .btn-settle { background: #7f8c8d; width: 95%; margin-top: 10px; }
         .btn-settle:hover { background: #95a5a6; box-shadow: 0 0 8px #95a5a6;}
 
-        /* 標記模式切換按鈕 */
         #mode-toggle-btn { background: #27ae60; border: 2px solid #fff; margin-bottom: 5px; }
 
         .stats {
@@ -203,6 +209,7 @@
             padding: 8px 20px;
             border-radius: 20px;
             width: 80%;
+            box-sizing: border-box;
         }
         #score-display { color: #50fa7b; font-size: 22px; text-shadow: 0 0 5px #50fa7b; }
         #moves-display { color: var(--primary-color); font-size: 22px; }
@@ -286,29 +293,54 @@
             min-height: 25px;
             text-shadow: 0 0 5px rgba(241, 196, 15, 0.4);
         }
+
+        .egg-item {
+            background: rgba(0,0,0,0.3);
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #7f8c8d;
+        }
+        .egg-unlocked { border-left-color: #2ecc71; }
+        .egg-title { font-weight: bold; font-size: 16px; color: #f1c40f; }
+        .egg-desc { font-size: 13px; color: #bdc3c7; margin-top: 4px; }
+        
+        /* 藏頭詩字體高亮樣式 */
+        .acrostic-letter {
+            color: #e58321;
+            font-size: 1.15em;
+            font-weight: 900;
+            /*text-shadow: 0 0 8px rgba(231, 76, 60, 0.7);*/
+        }
     </style>
 </head>
 <body>
 
-    <button id="update-log-btn" onclick="openLog()">📜 更新日誌</button>
+    <div class="top-right-nav">
+        <button id="egg-log-btn" class="nav-btn" onclick="openEggLog()">💿 專輯曲目</button>
+        <button id="update-log-btn" class="nav-btn" onclick="openLog()">📜 更新日誌</button>
+    </div>
 
+    <!-- 更新日誌彈窗 -->
     <div id="logModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="closeLog()">&times;</span>
             <h2 style="color: var(--primary-color); margin-top: 0;">📝 更新日誌</h2>
+            <div id="log-list-container">
+                <!-- 由 JS 動態載入 -->
+            </div>
+        </div>
+    </div>
 
-            <h4 style="color: #fff; background: #27ae60; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0;">版本：v1.1.0 (4/20)</h4>
-            <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">
-                <li>新增「隨機生成並單機遊玩」按鈕，一鍵自動佈置所有樂器並給 90 步。</li>
-                <li>新增旗標功能。</li>
-            </ul>
-
-            <h4 style="color: #fff; background: #e67e22; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">版本：v1.0.0 (4/18)</h4>
-            <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">
-                <li>導入代碼系統。</li>
-                <li>地圖調整為 16x16，並優化各樂器庫存上限。</li>
-                <li>做試跑一前最後確認。</li>
-            </ul>
+    <!-- 彩蛋圖鑑彈窗 -->
+    <div id="eggModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEggLog()">&times;</span>
+            <h2 style="color: var(--primary-color); margin-top: 0;">💿 隱藏曲目</h2>
+            <p style="font-size: 14px; color: #bdc3c7; margin-bottom: 15px;">探索隱藏的動作或輸入密語來解鎖曲目，獲得額外的雷達電量！</p>
+            <div id="egg-list-container">
+                <!-- 彩蛋列表將由 JS 動態生成 -->
+            </div>
         </div>
     </div>
 
@@ -359,12 +391,22 @@
                 <div class="stat-item">剩餘雷達電量 (步數): <span id="moves-display">0</span></div>
             </div>
 
+            <!-- 隨隊關主專用操作區含紀錄 -->
             <div style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
                 <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【隨隊關主專用：為小隊充電】</div>
-                <button class="gm-btn btn-win" onclick="addMoves(15)">🏆 遊戲勝利 (+15步)</button>
-                <button class="gm-btn btn-lose" onclick="addMoves(10)">💪 遊戲失敗 (+10步)</button>
-                <button class="gm-btn btn-secret" onclick="addMoves(5)">🕵️ 破解彩蛋 (+5步)</button>
-                <button class="gm-btn btn-undo" onclick="addMoves(-5)">⏪ 扣除電量 (-5步)</button>
+                
+                <!-- 精準步數對帳紀錄看板 -->
+                <div id="gm-stats-panel" style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; margin-bottom: 10px; text-align: center; color: #bdc3c7; font-size: 13px;">
+                    📊 操作紀錄：勝利 <span id="stat-win" style="color:#2ecc71; font-weight:bold;">0</span> 次 | 
+                    失敗 <span id="stat-lose" style="color:#e67e22; font-weight:bold;">0</span> 次 | 
+                    解鎖彩蛋 <span id="stat-secret" style="color:#9b59b6; font-weight:bold;">0</span> 次<br>
+                    本局總發放電量(含扣除)：<span id="stat-total" style="color:#f1c40f; font-weight:bold; font-size: 16px;">0</span> 步
+                </div>
+
+                <button class="gm-btn btn-win" onclick="addMoves(15, 'win')">🏆 遊戲勝利 (+15步)</button>
+                <button class="gm-btn btn-lose" onclick="addMoves(10, 'lose')">💪 遊戲失敗 (+10步)</button>
+                <button class="gm-btn btn-secret" onclick="promptEasterEgg()">🕵️ 破解曲目 (輸入密語)</button>
+                <button class="gm-btn btn-undo" onclick="addMoves(-5, 'undo')">⏪ 扣除電量 (-5步)</button>
                 <hr style="border-color: #7f8c8d; margin: 10px 0;">
                 <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
             </div>
@@ -384,45 +426,20 @@
         <p style="font-size: 14px; color: #bdc3c7; margin-top: 5px;">💡 提示：電腦版可直接對格子按「滑鼠右鍵」插旗</p>
     </div>
 
+    <!-- 引入外部的資料檔 -->
+    <script src="data.js"></script>
+
     <script>
-        const LIMITS = {
-            '🎤': 10, 
-            '🎸': 6, 
-            '🪕': 6, 
-            '🎹': 5, 
-            '🥁': 3,
-            '📻': 2
-        };
-
-        const NAMES_AND_SIZES = {
-            '🎤': '麥克風 (1x1)',
-            '🎸': '電吉他 (2x1)',
-            '🪕': '貝斯 (1x2)',
-            '🎹': '電子琴 (3x1)',
-            '🥁': '爵士鼓 (2x2)',
-            '📻': '監聽音箱 (2x3)',
-            '👾': '怪盜的陷阱 (10格連鎖)' 
-        };
-
-        const POINTS_MAP = {
-            1: 1,   
-            2: 3,   
-            3: 6,   
-            4: 10,  
-            6: 15,  
-            10: 20  
-        };
-
+        const LIMITS = { '🎤': 10, '🎸': 6, '🪕': 6, '🎹': 5, '🥁': 3, '📻': 2 };
+        const NAMES_AND_SIZES = { '🎤': '麥克風 (1x1)', '🎸': '電吉他 (2x1)', '🪕': '貝斯 (1x2)', '🎹': '電子琴 (3x1)', '🥁': '爵士鼓 (2x2)', '📻': '監聽音箱 (2x3)', '👾': '怪盜的陷阱 (10格連鎖)' };
+        const POINTS_MAP = { 1: 1, 2: 3, 3: 6, 4: 10, 6: 15, 10: 20 };
         const SIZE = 16; 
         const SAVE_KEY = 'earthgame_save_data'; 
         const DEFAULT_MOVES = 0; 
         
         const ICON_TO_CHAR = { '🎤':'A', '🎸':'B', '🪕':'C', '🎹':'D', '🥁':'E', '📻':'F', '👾':'G' };
         const CHAR_TO_ICON = { 'A':'🎤', 'B':'🎸', 'C':'🪕', 'D':'🎹', 'E':'🥁', 'F':'📻', 'G':'👾' };
-        const SHAPE_MAP = {
-            '🎤': {w:1, h:1}, '🎸': {w:2, h:1}, '🪕': {w:1, h:2},
-            '🎹': {w:3, h:1}, '🥁': {w:2, h:2}, '📻': {w:2, h:3}
-        };
+        const SHAPE_MAP = { '🎤': {w:1, h:1}, '🎸': {w:2, h:1}, '🪕': {w:1, h:2}, '🎹': {w:3, h:1}, '🥁': {w:2, h:2}, '📻': {w:2, h:3} };
 
         let board = [];
         let treasures = [];
@@ -431,20 +448,138 @@
         let movesLeft = DEFAULT_MOVES; 
         let treasureIdCounter = 1;
         let totalTreasureCells = 0;
+        
         let isFlagMode = false; 
+        let modeToggleCount = 0; 
 
-        function openLog() { document.getElementById('logModal').style.display = 'block'; }
+        let gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
+        let easterEggs = {};
+
+        function initData() {
+            // 從 data.js 中載入並深拷貝彩蛋設定
+            easterEggs = JSON.parse(JSON.stringify(EASTER_EGGS));
+        }
+
+        function openLog() { 
+            renderUpdateLogs();
+            document.getElementById('logModal').style.display = 'block'; 
+        }
         function closeLog() { document.getElementById('logModal').style.display = 'none'; }
+        
+        function openEggLog() { 
+            renderEggList();
+            document.getElementById('eggModal').style.display = 'block'; 
+        }
+        function closeEggLog() { document.getElementById('eggModal').style.display = 'none'; }
+
+        // 點擊彈窗外部區域自動關閉彈窗
+        window.onclick = function(event) {
+            const logModal = document.getElementById('logModal');
+            const eggModal = document.getElementById('eggModal');
+            if (event.target === logModal) {
+                closeLog();
+            }
+            if (event.target === eggModal) {
+                closeEggLog();
+            }
+        }
+
+        // 從 data.js 動態渲染更新日誌
+        function renderUpdateLogs() {
+            const container = document.getElementById('log-list-container');
+            container.innerHTML = '';
+            UPDATE_LOGS.forEach(log => {
+                let html = `<h4 style="color: #fff; background: ${log.color}; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">版本：${log.version} (${log.date})</h4>
+                <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">`;
+                log.items.forEach(item => { html += `<li>${item}</li>`; });
+                html += `</ul>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // 動態渲染彩蛋圖鑑 (加入藏頭高亮效果)
+        function renderEggList() {
+            const container = document.getElementById('egg-list-container');
+            container.innerHTML = '';
+            for (let key in easterEggs) {
+                const egg = easterEggs[key];
+                
+                // 使用 Regex 自動把《》內的第一個字母標記出來
+                const stylizedName = egg.name.replace(/《(.)(.*?)》/, '《<span class="acrostic-letter">$1</span>$2》');
+
+                const div = document.createElement('div');
+                div.className = `egg-item ${egg.unlocked ? 'egg-unlocked' : ''}`;
+                
+                if (egg.unlocked) {
+                    div.innerHTML = `<div class="egg-title">💿 ${stylizedName} <span style="color:#2ecc71; font-size:14px;"></span></div>
+                                     <div class="egg-desc">達成條件：成功解鎖此隱藏曲目！</div>`;
+                } else {
+                    div.innerHTML = `<div class="egg-title" style="color:#7f8c8d;">🔒 曲目未解鎖 <span style="font-size:14px;"></span></div>
+                                     <div class="egg-desc">提示：${egg.hint || 'X'}</div>`;
+                }
+                container.appendChild(div);
+            }
+        }
+
+        function unlockEgg(eggId) {
+            let egg = easterEggs[eggId];
+            if(egg && !egg.unlocked) {
+                egg.unlocked = true;
+                gmStats.secret++;
+                
+                movesLeft += egg.steps;
+                gmStats.total += egg.steps; 
+                
+                document.getElementById('moves-display').innerText = movesLeft;
+                updateGMStatsUI();
+                saveGame();
+                
+                showMessage(`🎉 曲目解鎖！播放了【${egg.name}】！獲得 ${egg.steps} 步。`);
+                alert(`💿 恭喜解鎖隱藏曲目！\n曲目：【${egg.name}】\n系統已發放 ${egg.steps} 步額外電量！`);
+            }
+        }
+
+        function promptEasterEgg() {
+            let code = prompt("🕵️ 請輸入破解曲目的密語：");
+            if (!code) return;
+            code = code.trim();
+
+            let foundEgg = null;
+            for (let key in easterEggs) {
+                if (easterEggs[key].code === code) {
+                    foundEgg = easterEggs[key];
+                    break;
+                }
+            }
+
+            if (foundEgg) {
+                if (foundEgg.unlocked) {
+                    alert("⚠️ 這首曲目已經被解鎖過囉！");
+                } else {
+                    unlockEgg(foundEgg.id);
+                }
+            } else {
+                alert("❌ 密語錯誤或不存在，請再試試！");
+            }
+        }
 
         function toggleMode() {
             isFlagMode = !isFlagMode;
             const btn = document.getElementById('mode-toggle-btn');
             if (isFlagMode) {
-                btn.innerText = "目前狀態：❌ 空地標記模式";
+                btn.innerText = "目前狀態：🚩 空地標記模式";
                 btn.style.background = "#e74c3c";
             } else {
                 btn.innerText = "目前狀態：⛏️ 挖掘探測模式";
                 btn.style.background = "#27ae60";
+            }
+
+            // 彩蛋：連續點擊觸發 (Track 06 change)
+            if (phase === 'play') {
+                modeToggleCount++;
+                if (modeToggleCount === 10 && easterEggs['egg6'] && !easterEggs['egg6'].unlocked) {
+                    unlockEgg('egg6');
+                }
             }
         }
 
@@ -489,14 +624,9 @@
                     const icon = CHAR_TO_ICON[part[0]];
                     const cells = [];
                     for (let i = 1; i < part.length; i += 2) {
-                        cells.push({
-                            r: parseInt(part[i], 16),
-                            c: parseInt(part[i+1], 16)
-                        });
+                        cells.push({ r: parseInt(part[i], 16), c: parseInt(part[i+1], 16) });
                     }
-                    return {
-                        id: index + 1, icon: icon, cells: cells, size: cells.length, foundCount: 0
-                    };
+                    return { id: index + 1, icon: icon, cells: cells, size: cells.length, foundCount: 0 };
                 });
                 
                 if (importedTreasures.length === 0 || !importedTreasures[0].icon) throw new Error("Format Error");
@@ -516,6 +646,7 @@
                 const blobSuccess = placeRandomBlob(10, '👾');
 
                 movesLeft = DEFAULT_MOVES;
+                gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
                 executePlayPhase(blobSuccess, "🚨 對手陣型匯入成功！任務開始！");
 
             } catch (e) {
@@ -524,17 +655,38 @@
             }
         }
 
-        function addMoves(amount) {
-            movesLeft += amount;
-            if (movesLeft < 0) movesLeft = 0; 
+        function addMoves(amount, type) {
+            if (amount < 0 && movesLeft === 0) {
+                showMessage(`⏪ 已經是 0 步了，無法再扣除電量！`);
+                return;
+            }
+
+            let actualAmount = amount;
+            if (movesLeft + amount < 0) actualAmount = -movesLeft;
+
+            movesLeft += actualAmount;
             document.getElementById('moves-display').innerText = movesLeft;
+
+            if (type === 'win') gmStats.win++;
+            else if (type === 'lose') gmStats.lose++;
+            
+            gmStats.total += actualAmount;
+            
+            updateGMStatsUI();
             saveGame(); 
             
-            if (amount > 0) {
-                showMessage(`🔋 充電成功！獲得 ${amount} 單位電量，目前共有 ${movesLeft} 步可以掃描。`);
+            if (actualAmount > 0) {
+                showMessage(`🔋 充電成功！獲得 ${actualAmount} 單位電量，目前共有 ${movesLeft} 步可以掃描。`);
             } else {
-                showMessage(`⏪ 已收回 ${Math.abs(amount)} 單位電量！目前剩下 ${movesLeft} 步。`);
+                showMessage(`⏪ 已收回 ${Math.abs(actualAmount)} 單位電量！目前剩下 ${movesLeft} 步。`);
             }
+        }
+
+        function updateGMStatsUI() {
+            document.getElementById('stat-win').innerText = gmStats.win;
+            document.getElementById('stat-lose').innerText = gmStats.lose;
+            document.getElementById('stat-secret').innerText = gmStats.secret;
+            document.getElementById('stat-total').innerText = gmStats.total;
         }
 
         function manualSettle() {
@@ -599,7 +751,10 @@
         }
 
         function saveGame() {
-            const gameState = { board, treasures, phase, score, movesLeft, treasureIdCounter, totalTreasureCells };
+            const gameState = { 
+                board, treasures, phase, score, movesLeft, treasureIdCounter, totalTreasureCells, 
+                gmStats, easterEggs 
+            };
             localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
         }
 
@@ -617,7 +772,7 @@
             boardDiv.innerHTML = '';
             board = [];
             totalTreasureCells = 0;
-            document.getElementById('flag-controls').style.display = 'none'; // 設定階段隱藏旗標區塊
+            document.getElementById('flag-controls').style.display = 'none';
 
             for (let r = 0; r < SIZE; r++) {
                 board[r] = [];
@@ -639,6 +794,7 @@
         }
 
         function loadGameAndInit() {
+            initData();
             const savedData = localStorage.getItem(SAVE_KEY);
             if (savedData) {
                 const state = JSON.parse(savedData);
@@ -651,6 +807,15 @@
                 movesLeft = state.movesLeft;
                 treasureIdCounter = state.treasureIdCounter;
                 totalTreasureCells = state.totalTreasureCells || 0;
+                
+                if (state.gmStats) gmStats = state.gmStats;
+                if (state.easterEggs) {
+                    for (let key in easterEggs) {
+                        if (state.easterEggs[key]) {
+                            easterEggs[key].unlocked = state.easterEggs[key].unlocked;
+                        }
+                    }
+                }
 
                 const boardDiv = document.getElementById('board');
                 boardDiv.innerHTML = '';
@@ -691,7 +856,7 @@
                                 }
                             }
                         } else if (cellData.flagged && phase === 'play') {
-                            cell.innerText = "❌";
+                            cell.innerText = "🚩";
                             cell.classList.add('flagged');
                         }
                         boardDiv.appendChild(cell);
@@ -701,10 +866,11 @@
                 if (phase === 'play') {
                     document.getElementById('setup-panel').style.display = 'none';
                     document.getElementById('play-panel').style.display = 'block';
-                    document.getElementById('flag-controls').style.display = 'block'; // 顯示旗標按鈕
+                    document.getElementById('flag-controls').style.display = 'block'; 
                     document.getElementById('score-display').innerText = score;
                     document.getElementById('moves-display').innerText = movesLeft;
                     updatePlayReferenceUI();
+                    updateGMStatsUI();
                     showMessage("📡 系統連線成功！自動恢復先前的搜索進度。");
                 } else {
                     document.getElementById('flag-controls').style.display = 'none';
@@ -773,7 +939,7 @@
             board[r][c].flagged = !board[r][c].flagged;
             const cellDiv = document.getElementById(`cell-${r}-${c}`);
             if (board[r][c].flagged) {
-                cellDiv.innerText = "❌";
+                cellDiv.innerText = "🚩";
                 cellDiv.classList.add('flagged');
             } else {
                 cellDiv.innerText = "";
@@ -921,6 +1087,10 @@
         function startGame() {
             if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
             const blobSuccess = placeRandomBlob(10, '👾');
+            
+            gmStats = { win: 0, lose: 0, secret: 0, total: 0 };
+            updateGMStatsUI();
+            
             executePlayPhase(blobSuccess, "🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
         }
 
@@ -934,6 +1104,10 @@
                 }
                 const blobSuccess = placeRandomBlob(10, '👾');
                 movesLeft = 90; 
+                
+                gmStats = { win: 0, lose: 0, secret: 0, total: 90 };
+                updateGMStatsUI();
+
                 executePlayPhase(blobSuccess, "🎲 隨機滿載地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
             }
         }
@@ -943,7 +1117,7 @@
             score = 0;
             document.getElementById('setup-panel').style.display = 'none';
             document.getElementById('play-panel').style.display = 'block';
-            document.getElementById('flag-controls').style.display = 'block'; // 顯示底部的旗標切換
+            document.getElementById('flag-controls').style.display = 'block'; 
             document.getElementById('moves-display').innerText = movesLeft;
             document.getElementById('score-display').innerText = score;
             
@@ -1054,7 +1228,7 @@
                     }
                 }
             }
-            document.getElementById('flag-controls').style.display = 'none'; // 結算後隱藏旗標按鈕
+            document.getElementById('flag-controls').style.display = 'none'; 
         }
 
         function showMessage(msg) { document.getElementById('message').innerText = msg; }
