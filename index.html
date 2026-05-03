@@ -377,7 +377,7 @@
             </div>
             
             <button onclick="startGame()" style="margin-top: 10px;">單機遊玩 (手動佈置完成，開始)</button>
-            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成滿載並單機遊玩 (90步)</button>
+            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成並單機遊玩 (90步)</button>
         </div>
 
         <div id="play-panel" style="display: none;">
@@ -1184,7 +1184,7 @@
         }
 
         function randomStartGame() {
-            if(confirm("確定要隨機生成滿載地圖並以 90 步開始嗎？原本的配置將會被清除！")) {
+            if(confirm("確定要隨機生成地圖並以 90 步開始嗎？原本的配置將會被清除！")) {
                 initBoard(); 
                 for (let icon in LIMITS) {
                     let limit = LIMITS[icon];
@@ -1200,7 +1200,7 @@
                 gmStats = { win: 0, lose: 0, secret: 0, total: 90, authorUnlocked: false };
                 updateGMStatsUI();
 
-                executePlayPhase(blobCount, "🎲 隨機滿載地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
+                executePlayPhase(blobCount, "🎲 隨機地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
             }
         }
 
