@@ -1,11 +1,19 @@
 // 這裡維護所有的更新日誌
 const UPDATE_LOGS = [
     {
+        version: "v1.2.2",
+        date: "5/31",
+        color: "#8e44ad", // 紫色
+        items: [
+            "Modify the hint of Easter eggs"
+        ]
+    },
+    {
         version: "v1.2.1",
         date: "5/3",
         color: "#8e44ad", // 紫色
         items: [
-            "Modify some detail of Easter eggs","Change the randomize item into two and less its score."
+            "Modify some detail of Easter eggs","Change the randomize item into two and lessen its score."
         ]
     },
     {
@@ -52,28 +60,28 @@ const EASTER_EGGS = {
         name: 'Track 01.《navigate》', 
         code: 'song-onmap', 
         steps: 2, 
-        hint: null
+        hint: '仔細看！'
     },
     'egg2': { 
         id: 'egg2', 
         name: 'Track 02.《timetraveler》', 
         code: 'song-inorder', 
         steps: 5, 
-        hint: '活的音樂史...'
+        hint: '努力排！'
     },
     'egg3': { 
         id: 'egg3', 
         name: 'Track 03.《unlimited》', 
         code: 'song-battt', 
         steps: 3, 
-        hint: null
+        hint: '用力打！'
     },
     'egg4': { 
         id: 'egg4', 
         name: 'Track 04.《parody》', 
         code: 'song-jaychouu', 
         steps: 5, 
-        hint: null
+        hint: '國文滿級分！'
     },
     'egg5': { 
         id: 'egg5', 
@@ -94,14 +102,14 @@ const EASTER_EGGS = {
         name: 'Track 07.《auspicious》', 
         code: 'song-fortune', 
         steps: 2, 
-        hint: '運氣好自然會解到' 
+        hint: '可遇不可求...' 
     },
     'egg8': { 
         id: 'egg8', 
         name: 'Track 08.《melody》', 
         code: 'song-peaches', 
         steps: 3, 
-        hint: 'bgm'
+        hint: '認真聽！'
     },
     'egg9': { 
         id: 'egg9', 
