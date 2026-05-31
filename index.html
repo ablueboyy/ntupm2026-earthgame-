@@ -504,7 +504,7 @@
                 
                 if (egg.unlocked) {
                     div.innerHTML = `<div class="egg-title">💿 ${stylizedName} <span style="color:#2ecc71; font-size:14px;"></span></div>
-                                     <div class="egg-desc">達成條件：成功解鎖此隱藏曲目！</div>`;
+                                     <div class="egg-desc">達成條件：${egg.unlockcond || 'X'}</div>`;
                 } else {
                     div.innerHTML = `<div class="egg-title" style="color:#7f8c8d;">🔒 曲目未解鎖 <span style="font-size:14px;"></span></div>
                                      <div class="egg-desc">提示：${egg.hint || 'X'}</div>`;
