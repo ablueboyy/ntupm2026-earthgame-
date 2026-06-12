@@ -56,16 +56,7 @@
 
             <div id="inventory-list" class="info-list"></div>
 
-            <select id="treasure-type">
-                <option value="1,1,🎤">🎤 麥克風 (1×1) — 1分</option>
-                <option value="2,1,🎸">🎸 電吉他 (2×1 橫) — 3分</option>
-                <option value="1,2,🪕">🪕 貝斯 (1×2 直) — 3分</option>
-                <option value="3,1,🎹">🎹 電子琴 (3×1 橫) — 6分</option>
-                <option value="2,2,🥁">🥁 爵士鼓 (2×2 方塊) — 10分</option>
-                <option value="2,3,📻">📻 監聽音箱 (2×3) — 15分</option>
-            </select>
-
-            <p class="setup-hint">🔹 你們進入了怪盜的意識中，請幫助他在 16×16 的荒野中手動埋藏樂器。</p>
+            <p class="setup-hint">🔹 你們進入了怪盜的意識中，請幫助他在 16×16 的荒野中手動埋藏樂器。點選右側按鈕選擇樂器，再點地圖格子放置。</p>
 
             <hr>
 
@@ -126,9 +117,13 @@
     <!-- Message -->
     <div id="message"></div>
 
-    <!-- Game Board -->
-    <div id="board-container">
-        <div id="board" onmouseleave="clearPreview()"></div>
+    <!-- Game Board + Instrument Selection Side Panel -->
+    <div id="board-area">
+        <div id="board-container">
+            <div id="board" onmouseleave="clearPreview()"></div>
+        </div>
+        <!-- Built by buildInstrumentPanel() — visible only in setup phase -->
+        <div id="instrument-panel"></div>
     </div>
 
     <!-- Flag / Dig Mode Toggle -->

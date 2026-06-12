@@ -33,7 +33,10 @@ function initBoard() {
             boardDiv.appendChild(cell);
         }
     }
+    // Show the instrument selection panel for the setup phase
+    document.getElementById('instrument-panel').style.display = 'flex';
     updateInventoryUI();
+    updateInstrumentButtons();
 }
 
 function clearPreview() {
@@ -56,7 +59,7 @@ function handleCellHover(r, c) {
         return;
     }
 
-    const typeInfo = document.getElementById('treasure-type').value.split(',');
+    const typeInfo = selectedTreasureType.split(',');
     const w = parseInt(typeInfo[0]);
     const h = parseInt(typeInfo[1]);
     const icon = typeInfo[2];

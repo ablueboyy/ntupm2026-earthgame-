@@ -166,7 +166,7 @@ function restartGame() {
 // ===== Treasure Placement =====
 
 function placeTreasure(r, c) {
-    const typeInfo = document.getElementById('treasure-type').value.split(',');
+    const typeInfo = selectedTreasureType.split(',');
     const w = parseInt(typeInfo[0]);
     const h = parseInt(typeInfo[1]);
     const icon = typeInfo[2];
@@ -205,6 +205,7 @@ function placeTreasure(r, c) {
     totalTreasureCells += w * h;
     showMessage(`✅ 成功隱藏 ${icon}！`);
     updateInventoryUI();
+    updateInstrumentButtons();
     saveGame();
     clearPreview();
     handleCellHover(r, c);
@@ -226,6 +227,7 @@ function removeTreasure(r, c) {
     treasures.splice(treasureIndex, 1);
     showMessage(`🗑️ 已挖出 ${treasure.icon}，請重新選擇掩埋地點！`);
     updateInventoryUI();
+    updateInstrumentButtons();
     saveGame();
     clearPreview();
     handleCellHover(r, c);
@@ -406,6 +408,7 @@ function executePlayPhase(blobCount, defaultMsg) {
     document.getElementById('setup-panel').style.display = 'none';
     document.getElementById('play-panel').style.display = 'block';
     document.getElementById('flag-controls').style.display = 'block';
+    document.getElementById('instrument-panel').style.display = 'none';
     document.getElementById('moves-display').innerText = movesLeft;
     document.getElementById('score-display').innerText = score;
 

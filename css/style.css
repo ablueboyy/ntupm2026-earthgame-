@@ -752,6 +752,142 @@ hr {
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
 /* ===== Responsive ===== */
+/* ===== Board Area & Instrument Panel ===== */
+
+#board-area {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+#instrument-panel {
+    /* display controlled by JS (flex when visible) */
+    flex-direction: column;
+    gap: 7px;
+    /* push down to align roughly with the start of the board grid
+       (board-container top-padding 16px + ::before label ~24px) */
+    padding-top: 40px;
+}
+
+/* ===== Instrument Selection Buttons ===== */
+
+.instrument-btn {
+    /* Pill / horizontal oval shape */
+    width: 150px;
+    height: 44px;
+    border-radius: 100px;
+    /* Override default button styles */
+    margin: 0;
+    box-shadow: none;
+    background: rgba(20, 36, 54, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.09);
+    color: var(--text-normal);
+    cursor: pointer;
+    /* Inner layout */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px 0 10px;
+    font-family: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.12s, opacity 0.2s;
+}
+
+/* Remove inherited highlight overlay */
+.instrument-btn::after { display: none; }
+
+/* Hover: slide right slightly, brighten */
+.instrument-btn:hover:not(.maxed) {
+    background: rgba(36, 60, 88, 0.95);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateX(4px);
+    box-shadow: -3px 0 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Active / currently selected */
+.instrument-btn.selected {
+    border-color: var(--gold);
+    background: rgba(241, 196, 15, 0.1);
+    box-shadow: 0 0 16px rgba(241, 196, 15, 0.18);
+    color: var(--text-bright);
+    transform: translateX(4px);
+}
+
+.instrument-btn.selected:hover:not(.maxed) {
+    background: rgba(241, 196, 15, 0.15);
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.25);
+}
+
+/* Maxed out: dim, no interaction */
+.instrument-btn.maxed {
+    opacity: 0.28;
+    pointer-events: none;
+}
+
+/* ---- Inner elements ---- */
+
+.inst-icon {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.inst-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.25;
+    overflow: hidden;
+}
+
+.inst-name {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inst-detail {
+    font-size: 10px;
+    color: var(--text-dim);
+}
+
+.inst-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+
+.instrument-btn.selected .inst-count { color: rgba(241, 196, 15, 0.8); }
+
+/* ===== Responsive ===== */
+
+/* Tablet and below: stack instrument panel under the board */
+@media (max-width: 820px) {
+    #board-area {
+        flex-direction: column;
+        align-items: center;
+    }
+    #instrument-panel {
+        padding-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        max-width: 560px;
+    }
+    .instrument-btn {
+        width: 140px;
+        height: 40px;
+    }
+}
+
 @media (max-width: 600px) {
     h1 { font-size: 1.8rem; margin-top: 72px; }
     body { padding: 12px; }
@@ -764,4 +900,6 @@ hr {
     }
     .cell { width: 27px; height: 27px; font-size: 10px; }
     .gm-btn-group .gm-btn { flex: 1 1 calc(50% - 4px); font-size: 11px; }
+    .instrument-btn { width: 130px; height: 38px; font-size: 12px; }
+    .inst-icon { font-size: 16px; }
 }

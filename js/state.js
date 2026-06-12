@@ -12,5 +12,8 @@ let totalTreasureCells = 0;
 let isFlagMode = false;
 let modeToggleCount = 0;
 
+// Currently highlighted instrument in the setup-phase side panel
+let selectedTreasureType = '1,1,🎤';
+
 let gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
 let easterEggs = {};

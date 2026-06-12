@@ -94,6 +94,61 @@ function renderEggList() {
     }
 }
 
+// ===== Instrument Selection Panel =====
+
+function buildInstrumentPanel() {
+    const panel = document.getElementById('instrument-panel');
+    panel.innerHTML = '';
+    INSTRUMENTS.forEach(inst => {
+        const btn = document.createElement('button');
+        btn.className = 'instrument-btn';
+        btn.dataset.value = inst.value;
+        btn.innerHTML = `
+            <span class="inst-icon">${inst.icon}</span>
+            <span class="inst-info">
+                <span class="inst-name">${inst.name}</span>
+                <span class="inst-detail">${inst.detail}</span>
+            </span>
+            <span class="inst-count">0/${LIMITS[inst.icon]}</span>`;
+        btn.onclick = () => selectInstrument(inst.value);
+        panel.appendChild(btn);
+    });
+    updateInstrumentButtons();
+}
+
+function selectInstrument(value) {
+    selectedTreasureType = value;
+    updateInstrumentButtons();
+    clearPreview();
+}
+
+function updateInstrumentButtons() {
+    // If the selected instrument is now maxed, auto-switch to first available
+    const selIcon = selectedTreasureType.split(',')[2];
+    if (treasures.filter(t => t.icon === selIcon).length >= LIMITS[selIcon]) {
+        for (const inst of INSTRUMENTS) {
+            const ic = inst.value.split(',')[2];
+            if (treasures.filter(t => t.icon === ic).length < LIMITS[ic]) {
+                selectedTreasureType = inst.value;
+                break;
+            }
+        }
+    }
+
+    document.querySelectorAll('.instrument-btn').forEach(btn => {
+        const val = btn.dataset.value;
+        const icon = val.split(',')[2];
+        const count = treasures.filter(t => t.icon === icon).length;
+        const limit = LIMITS[icon];
+
+        const countEl = btn.querySelector('.inst-count');
+        if (countEl) countEl.textContent = `${count}/${limit}`;
+
+        btn.classList.toggle('selected', val === selectedTreasureType);
+        btn.classList.toggle('maxed', count >= limit);
+    });
+}
+
 // ===== Modal Controls =====
 
 function openLog() {

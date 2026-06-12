@@ -2,6 +2,7 @@
 
 function loadGameAndInit() {
     initData();
+    buildInstrumentPanel();   // always build DOM structure first
     const savedData = localStorage.getItem(SAVE_KEY);
 
     if (savedData) {
@@ -83,7 +84,9 @@ function loadGameAndInit() {
             showMessage('📡 系統連線成功！自動恢復先前的搜索進度。');
         } else {
             document.getElementById('flag-controls').style.display = 'none';
+            document.getElementById('instrument-panel').style.display = 'flex';
             updateInventoryUI();
+            updateInstrumentButtons();
             showMessage('🎵 歡迎回來！請繼續掩埋樂器。');
         }
     } else {
