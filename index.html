@@ -4,1331 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NTUPM earthgame</title>
-    <style>
-        :root {
-            --bg-color: #2c3e50; 
-            --panel-bg: #34495e;
-            --primary-color: #f1c40f; 
-            --secondary-color: #e67e22;
-            --accent-color: #e74c3c;
-            --cell-bg: #ecf0f1;
-            --cell-hover: #bdc3c7;
-            --text-color: #ecf0f1;
-            --instrument-color: #f39c12;
-        }
-
-        body {
-            font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif;
-            text-align: center;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            position: relative; 
-        }
-
-        .top-right-nav {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .nav-btn {
-            background: #7f8c8d;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            margin: 0;
-            font-weight: bold;
-        }
-        .nav-btn:hover { background: #95a5a6; }
-        #egg-log-btn { background: #8e44ad; }
-        #egg-log-btn:hover { background: #9b59b6; }
-
-        .modal-overlay {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; top: 0; width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.7); 
-        }
-        .modal-content {
-            background-color: var(--panel-bg);
-            margin: 10% auto; 
-            padding: 20px; 
-            border: 2px solid var(--primary-color);
-            border-radius: 12px;
-            width: 90%; 
-            max-width: 500px;
-            box-sizing: border-box; 
-            color: var(--text-color);
-            text-align: left;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .close-btn {
-            color: #ccc;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: -5px;
-        }
-        .close-btn:hover { color: #fff; }
-
-        h1 { margin-top: 40px; color: var(--primary-color); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
-        h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 10px; }
-
-        #story-box {
-            max-width: 600px;
-            margin: 0 auto 20px auto;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 20px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-color);
-            text-align: left;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #ddd;
-            box-sizing: border-box;
-        }
-
-        #controls {
-            margin: 0 auto 20px auto;
-            padding: 20px;
-            background: var(--panel-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: inline-block;
-            border: 1px solid #7f8c8d;
-            min-width: 320px;
-            box-sizing: border-box;
-        }
-
-        .info-list {
-            text-align: left;
-            margin: 10px auto 15px auto;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            border: 1px solid #7f8c8d;
-        }
-        .inventory-header {
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: var(--primary-color);
-            border-bottom: 1px solid #7f8c8d;
-            padding-bottom: 4px;
-        }
-        .inventory-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            color: var(--text-color);
-        }
-        .limit-reached { color: #e74c3c; font-weight: bold; }
-
-        select, button {
-            padding: 10px 15px;
-            font-size: 16px;
-            margin: 5px;
-            border-radius: 6px;
-            border: 1px solid #7f8c8d;
-            background-color: #2c3e50;
-            color: var(--text-color);
-            outline: none;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        select:focus { border-color: var(--primary-color); }
-
-        button {
-            background: linear-gradient(45deg, var(--secondary-color), #d35400);
-            color: #fff;
-            cursor: pointer;
-            border: none;
-            font-weight: bold;
-            transition: transform 0.1s, box-shadow 0.2s;
-            margin-top: 10px;
-        }
-
-        button:hover { box-shadow: 0 0 10px var(--secondary-color); transform: translateY(-2px); }
-        button:active { transform: translateY(1px); }
-
-        .btn-export { background: linear-gradient(45deg, #2980b9, #3498db); }
-        .btn-export:hover { box-shadow: 0 0 10px #3498db; }
-        .btn-import { background: linear-gradient(45deg, #8e44ad, #9b59b6); }
-        .btn-import:hover { box-shadow: 0 0 10px #9b59b6; }
-        .btn-random { background: linear-gradient(45deg, #16a085, #1abc9c); margin-top: 15px; }
-        .btn-random:hover { box-shadow: 0 0 10px #1abc9c; }
-
-        .gm-btn {
-            width: auto;
-            padding: 8px 12px;
-            font-size: 14px;
-            margin: 5px 2px;
-            border-radius: 6px;
-            color: white;
-            border: none;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-        .btn-win { background: #27ae60; }
-        .btn-win:hover { background: #2ecc71; box-shadow: 0 0 8px #2ecc71;}
-        .btn-lose { background: #d35400; }
-        .btn-lose:hover { background: #e67e22; box-shadow: 0 0 8px #e67e22;}
-        .btn-secret { background: #8e44ad; }
-        .btn-secret:hover { background: #9b59b6; box-shadow: 0 0 8px #9b59b6;}
-        .btn-undo { background: #c0392b; }
-        .btn-undo:hover { background: #e74c3c; box-shadow: 0 0 8px #e74c3c;}
-        .btn-settle { background: #7f8c8d; width: 95%; margin-top: 10px; }
-        .btn-settle:hover { background: #95a5a6; box-shadow: 0 0 8px #95a5a6;}
-
-        #mode-toggle-btn { background: #27ae60; border: 2px solid #fff; margin-bottom: 5px; }
-
-        .stats {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        .stat-item {
-            background: rgba(0,0,0,0.3);
-            padding: 8px 20px;
-            border-radius: 20px;
-            width: 80%;
-            box-sizing: border-box;
-        }
-        #score-display { color: #50fa7b; font-size: 22px; text-shadow: 0 0 5px #50fa7b; }
-        #moves-display { color: var(--primary-color); font-size: 22px; }
-        
-        #board-container {
-            position: relative;
-            display: inline-block;
-            padding: 10px;
-            background: #1a252f;
-            border-radius: 10px;
-            border: 2px solid #34495e;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        #board {
-            display: grid;
-            grid-template-columns: repeat(16, 35px);
-            grid-template-rows: repeat(16, 35px);
-            grid-gap: 3px;
-            justify-content: center;
-            min-width: max-content; 
-        }
-
-        .cell {
-            width: 35px;
-            height: 35px;
-            background-color: var(--cell-bg);
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px; 
-            color: #2c3e50; 
-            user-select: none; 
-        }
-
-        .cell:hover:not(.revealed):not(.setup-treasure):not(.preview-valid):not(.preview-invalid) {
-            background-color: var(--cell-hover);
-        }
-        
-        .cell.setup-treasure {
-            background-color: var(--instrument-color);
-            border: 1px solid #fff;
-        }
-
-        .cell.preview-valid { background-color: rgba(241, 196, 15, 0.6); border: 2px dashed #f39c12; box-sizing: border-box; }
-        .cell.preview-invalid { background-color: rgba(231, 76, 60, 0.5); border: 2px dashed #c0392b; box-sizing: border-box; cursor: not-allowed; }
-
-        .cell.revealed { cursor: not-allowed; box-shadow: none; }
-        
-        .cell.flagged { color: #e74c3c; font-size: 18px; text-shadow: none; }
-
-        .cell.miss { background-color: #7f8c8d; } 
-        .n1 { color: #3498db; }
-        .n2 { color: #2ecc71; }
-        .n3 { color: #e74c3c; }
-        .n4 { color: #9b59b6; }
-        .n5 { color: #f39c12; font-weight: 900; }
-        .n6, .n7, .n8 { color: #e67e22; font-weight: 900; }
-
-        .cell.hit { background-color: #f1c40f; color: #000; animation: hitPop 0.3s ease; }
-        .cell.completed { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; color: #000; }
-        
-        @keyframes hitPop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); background-color: #fff; }
-            100% { transform: scale(1); }
-        }
-
-        #message {
-            font-size: 18px;
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            min-height: 25px;
-            text-shadow: 0 0 5px rgba(241, 196, 15, 0.4);
-        }
-
-        .egg-item {
-            background: rgba(0,0,0,0.3);
-            margin-bottom: 8px;
-            padding: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #7f8c8d;
-        }
-        .egg-unlocked { border-left-color: #2ecc71; }
-        .egg-title { font-weight: bold; font-size: 16px; color: #f1c40f; }
-        .egg-desc { font-size: 13px; color: #bdc3c7; margin-top: 4px; }
-        
-        /* 藏頭詩字體高亮樣式 */
-        .acrostic-letter {
-            color: #e58321;
-            font-size: 1.15em;
-            font-weight: 900;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+    <!-- Navigation -->
     <div class="top-right-nav">
         <button id="egg-log-btn" class="nav-btn" onclick="openEggLog()">💿 專輯曲目</button>
         <button id="update-log-btn" class="nav-btn" onclick="openLog()">📜 更新紀錄</button>
     </div>
 
-    <!-- 更新日誌彈窗 -->
+    <!-- Update Log Modal -->
     <div id="logModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="closeLog()">&times;</span>
-            <h2 style="color: var(--primary-color); margin-top: 0;">📝 Update Log</h2>
-            <div id="log-list-container">
-                <!-- 由 JS 動態載入 -->
-            </div>
+            <h2 class="modal-title">📝 Update Log</h2>
+            <div id="log-list-container"></div>
         </div>
     </div>
 
-    <!-- 彩蛋圖鑑彈窗 -->
+    <!-- Easter Egg Gallery Modal -->
     <div id="eggModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="closeEggLog()">&times;</span>
-            <h2 style="color: var(--primary-color); margin-top: 0;">💿 隱藏曲目</h2>
-            <p style="font-size: 14px; color: #bdc3c7; margin-bottom: 15px;">探索隱藏的動作或輸入密語來解鎖曲目，獲得額外的雷達電量！</p>
-            <div id="egg-list-container">
-                <!-- 彩蛋列表將由 JS 動態生成 -->
-            </div>
+            <h2 class="modal-title">💿 隱藏曲目</h2>
+            <p class="egg-modal-desc">探索隱藏的動作或輸入密語來解鎖曲目，獲得額外的雷達電量！</p>
+            <div id="egg-list-container"></div>
         </div>
     </div>
 
+    <!-- Header -->
     <h1>🚂 NTUPM earthgame</h1>
+    <p class="subtitle">大地遊戲 · 尋找失竊樂器</p>
 
+    <!-- Story -->
     <div id="story-box">
         <strong>⚠️ 突發狀況！</strong><br>
         各位旅客請注意，特快車已緊急停靠。前方準備在今晚開唱的樂團遭到襲擊，他們的樂器全被神祕的「怪盜」偷走，並就近掩埋在車站外的荒野中了！<br>
         請各位小隊員立刻出動，透過大地遊戲獲取「雷達電量 (步數)」，掃描這片荒野，幫樂團找回失竊的樂器吧！
     </div>
 
+    <!-- Controls -->
     <div id="controls">
+
+        <!-- Phase 1: Setup -->
         <div id="setup-panel">
             <h3>🧳 第一階段：藏匿樂器</h3>
-            
+
             <div id="inventory-list" class="info-list"></div>
 
             <select id="treasure-type">
-                <option value="1,1,🎤">🎤 麥克風 (1x1) - 1分</option>
-                <option value="2,1,🎸">🎸 電吉他 (2x1 橫) - 3分</option>
-                <option value="1,2,🪕">🪕 貝斯 (1x2 直) - 3分</option>
-                <option value="3,1,🎹">🎹 電子琴 (3x1 橫) - 6分</option>
-                <option value="2,2,🥁">🥁 爵士鼓 (2x2 方塊) - 10分</option>
-                <option value="2,3,📻">📻 監聽音箱 (2寬x3高) - 15分</option>
+                <option value="1,1,🎤">🎤 麥克風 (1×1) — 1分</option>
+                <option value="2,1,🎸">🎸 電吉他 (2×1 橫) — 3分</option>
+                <option value="1,2,🪕">🪕 貝斯 (1×2 直) — 3分</option>
+                <option value="3,1,🎹">🎹 電子琴 (3×1 橫) — 6分</option>
+                <option value="2,2,🥁">🥁 爵士鼓 (2×2 方塊) — 10分</option>
+                <option value="2,3,📻">📻 監聽音箱 (2×3) — 15分</option>
             </select>
-            
-            <p style="font-size:14px; color:#bdc3c7; margin-top:15px; line-height: 1.5;">
-                🔹 你們進入了怪盜的意識中，請幫助他在 16x16 的荒野中手動埋藏樂器。<br>
-            </p>
 
-            <hr style="border-color: #7f8c8d; margin: 15px 0;">
-            <div style="display: flex; gap: 10px; justify-content: center;">
+            <p class="setup-hint">🔹 你們進入了怪盜的意識中，請幫助他在 16×16 的荒野中手動埋藏樂器。</p>
+
+            <hr>
+
+            <div class="btn-group">
                 <button class="btn-export" onclick="exportCode()">📤 匯出藏匿密報</button>
                 <button class="btn-import" onclick="importCode()">📥 匯入對手密報</button>
             </div>
-            
-            <button onclick="startGame()" style="margin-top: 10px;">單機遊玩 (手動佈置完成，開始)</button>
-            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成並單機遊玩 (90步)</button>
+
+            <button onclick="startGame()" style="margin-top:10px;">▶ 單機遊玩（完成佈置，開始）</button>
+            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成並單機遊玩（90步）</button>
         </div>
 
-        <div id="play-panel" style="display: none;">
+        <!-- Phase 2: Play -->
+        <div id="play-panel" style="display:none;">
             <h3>📡 第二階段：雷達搜索</h3>
 
             <div id="play-reference" class="info-list"></div>
 
             <div class="stats">
-                <div class="stat-item">總分: <span id="score-display">0</span></div>
-                <div class="stat-item">剩餘雷達電量 (步數): <span id="moves-display">0</span></div>
+                <div class="stat-item">
+                    <span>⭐ 總分</span>
+                    <span id="score-display">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>⚡ 雷達電量（步數）</span>
+                    <span id="moves-display">0</span>
+                </div>
             </div>
 
-            <!-- 隨隊關主專用操作區含紀錄 -->
-            <div style="margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
-                <div style="font-size: 14px; color: #f1c40f; margin-bottom: 5px;">【隨隊關主專用：為小隊充電】</div>
-                
-                <div id="gm-stats-panel" style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; margin-bottom: 10px; text-align: center; color: #bdc3c7; font-size: 13px;">
-                    📊 操作紀錄：勝利 <span id="stat-win" style="color:#2ecc71; font-weight:bold;">0</span> 次 | 
-                    失敗 <span id="stat-lose" style="color:#e67e22; font-weight:bold;">0</span> 次 | 
-                    解鎖彩蛋 <span id="stat-secret" style="color:#9b59b6; font-weight:bold;">0</span> 次<br>
-                    本局總發放電量(含扣除)：<span id="stat-total" style="color:#f1c40f; font-weight:bold; font-size: 16px;">0</span> 步
+            <!-- GM Panel -->
+            <div class="gm-panel">
+                <div class="gm-panel-title">🎮 隨隊關主專用：為小隊充電</div>
+
+                <div id="gm-stats-panel" class="gm-stats">
+                    📊 操作紀錄：勝利
+                    <span id="stat-win" style="color:#2ecc71;font-weight:bold;">0</span> 次 |
+                    失敗 <span id="stat-lose" style="color:#e67e22;font-weight:bold;">0</span> 次 |
+                    解鎖彩蛋 <span id="stat-secret" style="color:#9b59b6;font-weight:bold;">0</span> 次<br>
+                    本局總發放電量(含扣除)：<span id="stat-total" style="color:#f1c40f;font-weight:bold;font-size:15px;">0</span> 步
                 </div>
 
-                <button class="gm-btn btn-win" onclick="addMoves(15, 'win')">🏆 遊戲勝利 (+15步)</button>
-                <button class="gm-btn btn-lose" onclick="addMoves(10, 'lose')">💪 遊戲失敗 (+10步)</button>
-                <button class="gm-btn btn-secret" onclick="promptEasterEgg()">🕵️ 破解曲目 (輸入密語)</button>
-                <button class="gm-btn btn-undo" onclick="addMoves(-5, 'undo')">⏪ 扣除電量 (-5步)</button>
-                <hr style="border-color: #7f8c8d; margin: 10px 0;">
+                <div class="gm-btn-group">
+                    <button class="gm-btn btn-win"    onclick="addMoves(15, 'win')">🏆 勝利 +15步</button>
+                    <button class="gm-btn btn-lose"   onclick="addMoves(10, 'lose')">💪 失敗 +10步</button>
+                    <button class="gm-btn btn-secret" onclick="promptEasterEgg()">🕵️ 破解曲目</button>
+                    <button class="gm-btn btn-undo"   onclick="addMoves(-5, 'undo')">⏪ 扣除 -5步</button>
+                </div>
+
+                <hr>
                 <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
             </div>
 
-            <button onclick="restartGame()" style="background: transparent; border: 1px solid #e74c3c; color:#e74c3c; width:auto; padding: 8px 20px; margin-top: 5px;">重新一局 (清除存檔)</button>
+            <button class="btn-restart" onclick="restartGame()">↺ 重新一局（清除存檔）</button>
         </div>
+
     </div>
 
+    <!-- Message -->
     <div id="message"></div>
-    
+
+    <!-- Game Board -->
     <div id="board-container">
         <div id="board" onmouseleave="clearPreview()"></div>
     </div>
 
-    <div id="flag-controls" style="display: none; max-width: 320px; margin: 15px auto;">
+    <!-- Flag / Dig Mode Toggle -->
+    <div id="flag-controls" style="display:none;">
         <button id="mode-toggle-btn" onclick="toggleMode()">目前狀態：⛏️ 挖掘探測模式</button>
-        <p style="font-size: 14px; color: #bdc3c7; margin-top: 5px;">💡 提示：電腦版可直接對格子按「滑鼠右鍵」插旗</p>
+        <p class="flag-hint">💡 提示：電腦版可直接對格子按「滑鼠右鍵」插旗</p>
     </div>
 
-    <!-- 引入外部的資料檔 -->
+    <!-- Scripts (load order matters) -->
     <script src="data.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 
-    <script>
-        const LIMITS = { '🎤': 10, '🎸': 6, '🪕': 6, '🎹': 5, '🥁': 3, '📻': 2 };
-        const NAMES_AND_SIZES = { '🎤': '麥克風 (1x1)', '🎸': '電吉他 (2x1)', '🪕': '貝斯 (1x2)', '🎹': '電子琴 (3x1)', '🥁': '爵士鼓 (2x2)', '📻': '監聽音箱 (2x3)', '👾': '怪盜的陷阱 (8格連鎖)' };
-        const POINTS_MAP = { 1: 1, 2: 3, 3: 6, 4: 10, 6: 15, 8: 18, 10: 20 };
-        const SIZE = 16; 
-        const SAVE_KEY = 'earthgame_save_data'; 
-        const DEFAULT_MOVES = 0; 
-        
-        const ICON_TO_CHAR = { '🎤':'A', '🎸':'B', '🪕':'C', '🎹':'D', '🥁':'E', '📻':'F', '👾':'G' };
-        const CHAR_TO_ICON = { 'A':'🎤', 'B':'🎸', 'C':'🪕', 'D':'🎹', 'E':'🥁', 'F':'📻', 'G':'👾' };
-        const SHAPE_MAP = { '🎤': {w:1, h:1}, '🎸': {w:2, h:1}, '🪕': {w:1, h:2}, '🎹': {w:3, h:1}, '🥁': {w:2, h:2}, '📻': {w:2, h:3} };
-
-        let board = [];
-        let treasures = [];
-        let phase = 'setup'; 
-        let score = 0;
-        let movesLeft = DEFAULT_MOVES; 
-        let treasureIdCounter = 1;
-        let totalTreasureCells = 0;
-        
-        let isFlagMode = false; 
-        let modeToggleCount = 0; 
-
-        let gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
-        let easterEggs = {};
-
-        function initData() {
-            if (typeof EASTER_EGGS !== 'undefined') {
-                easterEggs = JSON.parse(JSON.stringify(EASTER_EGGS));
-            }
-        }
-
-        function openLog() { 
-            renderUpdateLogs();
-            document.getElementById('logModal').style.display = 'block'; 
-        }
-        function closeLog() { document.getElementById('logModal').style.display = 'none'; }
-        
-        function openEggLog() { 
-            renderEggList();
-            document.getElementById('eggModal').style.display = 'block'; 
-        }
-        function closeEggLog() { document.getElementById('eggModal').style.display = 'none'; }
-
-        // 點擊彈窗外部區域自動關閉彈窗
-        window.onclick = function(event) {
-            const logModal = document.getElementById('logModal');
-            const eggModal = document.getElementById('eggModal');
-            if (event.target === logModal) closeLog();
-            if (event.target === eggModal) closeEggLog();
-        }
-
-        function renderUpdateLogs() {
-            if (typeof UPDATE_LOGS === 'undefined') return;
-            const container = document.getElementById('log-list-container');
-            container.innerHTML = '';
-            UPDATE_LOGS.forEach(log => {
-                let html = `<h4 style="color: #fff; background: ${log.color}; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 0; margin-top: 10px;">Ver：${log.version} (${log.date})</h4>
-                <ul style="line-height: 1.6; margin-top: 10px; padding-left: 20px; color: #bdc3c7;">`;
-                log.items.forEach(item => { html += `<li>${item}</li>`; });
-                html += `</ul>`;
-                container.innerHTML += html;
-            });
-        }
-
-        function renderEggList() {
-            const container = document.getElementById('egg-list-container');
-            container.innerHTML = '';
-            for (let key in easterEggs) {
-                const egg = easterEggs[key];
-                const stylizedName = egg.name.replace(/《(.)(.*?)》/, '《<span class="acrostic-letter">$1</span>$2》');
-
-                const div = document.createElement('div');
-                div.className = `egg-item ${egg.unlocked ? 'egg-unlocked' : ''}`;
-                
-                if (egg.unlocked) {
-                    div.innerHTML = `<div class="egg-title">💿 ${stylizedName} <span style="color:#2ecc71; font-size:14px;"></span></div>
-                                     <div class="egg-desc">達成條件：${egg.unlockcond || 'X'}</div>`;
-                } else {
-                    div.innerHTML = `<div class="egg-title" style="color:#7f8c8d;">🔒 曲目未解鎖 <span style="font-size:14px;"></span></div>
-                                     <div class="egg-desc">提示：${egg.hint || 'X'}</div>`;
-                }
-                container.appendChild(div);
-            }
-        }
-
-        function unlockEgg(eggId) {
-            let egg = easterEggs[eggId];
-            if(egg && !egg.unlocked) {
-                egg.unlocked = true;
-                gmStats.secret++;
-                
-                movesLeft += egg.steps;
-                gmStats.total += egg.steps; 
-                
-                document.getElementById('moves-display').innerText = movesLeft;
-                updateGMStatsUI();
-                saveGame();
-                
-                showMessage(`🎉 曲目解鎖！播放了【${egg.name}】！獲得 ${egg.steps} 步。`);
-                alert(`💿 恭喜解鎖隱藏曲目！\n曲目：【${egg.name}】\n系統已發放 ${egg.steps} 步額外電量！`);
-            }
-        }
-
-        function promptEasterEgg() {
-            let code = prompt("🕵️ 請輸入破解曲目的密語：");
-            if (!code) return;
-            code = code.trim();
-
-            // 👻 作者隱藏彩蛋：絕對不在圖鑑中顯示
-            if (code === 'ablueboyy') {
-                if (gmStats.authorUnlocked) {
-                    alert("⚠️ 作者已經感謝過你啦！");
-                    return;
-                }
-                alert("作者感謝你的遊玩 偷偷給你10步 很多喔 然後這個密碼是我的哀居 如果你有找到這個彩蛋可以加我讓我知道你很厲害");
-                gmStats.authorUnlocked = true;
-                movesLeft += 10;
-                gmStats.total += 10;
-                gmStats.secret++;
-                document.getElementById('moves-display').innerText = movesLeft;
-                updateGMStatsUI();
-                saveGame();
-                showMessage(`🎉 觸發開發者專屬隱藏彩蛋！獲得 10 步。`);
-                return;
-            }
-
-            let foundEgg = null;
-            for (let key in easterEggs) {
-                if (easterEggs[key].code === code) {
-                    foundEgg = easterEggs[key];
-                    break;
-                }
-            }
-
-            if (foundEgg) {
-                if (foundEgg.unlocked) {
-                    alert("⚠️ 這首曲目已經被解鎖過囉！");
-                } else {
-                    unlockEgg(foundEgg.id);
-                }
-            } else {
-                alert("❌ 密語錯誤或不存在，請再試試！");
-            }
-        }
-
-        function toggleMode() {
-            isFlagMode = !isFlagMode;
-            const btn = document.getElementById('mode-toggle-btn');
-            if (isFlagMode) {
-                btn.innerText = "目前狀態：🚩 空地標記模式";
-                btn.style.background = "#e74c3c";
-            } else {
-                btn.innerText = "目前狀態：⛏️ 挖掘探測模式";
-                btn.style.background = "#27ae60";
-            }
-
-            if (phase === 'play') {
-                modeToggleCount++;
-                if (modeToggleCount === 10 && easterEggs['egg6'] && !easterEggs['egg6'].unlocked) {
-                    unlockEgg('egg6');
-                }
-            }
-        }
-
-        function exportCode() {
-            if (treasures.length === 0) {
-                showMessage("⚠️ 請至少藏匿一個樂器再匯出！");
-                return;
-            }
-            try {
-                const compressedString = treasures.map(t => {
-                    const charId = ICON_TO_CHAR[t.icon];
-                    const coords = t.cells.map(pos => pos.r.toString(16) + pos.c.toString(16)).join('');
-                    return charId + coords;
-                }).join('-');
-                
-                const codeString = "NTU-" + btoa(compressedString);
-                
-                navigator.clipboard.writeText(codeString).then(() => {
-                    alert("✅ 藏匿密報已成功複製！\n請傳送給你要挑戰的對手。");
-                    showMessage("📤 藏匿密報已複製，等待對手匯入...");
-                }).catch(err => {
-                    prompt("請手動複製以下代碼，並傳給對手：", codeString);
-                });
-            } catch (e) {
-                console.error("匯出失敗:", e);
-                alert("❌ 匯出失敗，請確認瀏覽器支援。");
-            }
-        }
-
-        function importCode() {
-            let codeString = prompt("📥 請貼上對手傳給你的藏匿密報：");
-            if (!codeString) return;
-            codeString = codeString.trim();
-
-            try {
-                if (!codeString.startsWith("NTU-")) throw new Error("Invalid Code");
-
-                const decodedString = atob(codeString.substring(4));
-                const parts = decodedString.split('-');
-                
-                const importedTreasures = parts.map((part, index) => {
-                    const icon = CHAR_TO_ICON[part[0]];
-                    const cells = [];
-                    for (let i = 1; i < part.length; i += 2) {
-                        cells.push({ r: parseInt(part[i], 16), c: parseInt(part[i+1], 16) });
-                    }
-                    return { id: index + 1, icon: icon, cells: cells, size: cells.length, foundCount: 0 };
-                });
-                
-                if (importedTreasures.length === 0 || !importedTreasures[0].icon) throw new Error("Format Error");
-
-                initBoard();
-                treasures = importedTreasures;
-                treasureIdCounter = treasures.length > 0 ? Math.max(...treasures.map(t => t.id)) + 1 : 1;
-                totalTreasureCells = 0;
-
-                treasures.forEach(treasure => {
-                    totalTreasureCells += treasure.size;
-                    treasure.cells.forEach(pos => {
-                        board[pos.r][pos.c].treasureId = treasure.id;
-                    });
-                });
-
-                const b1 = placeRandomBlob(8, '👾');
-                const b2 = placeRandomBlob(8, '👾');
-                let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
-
-                movesLeft = DEFAULT_MOVES;
-                gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
-                executePlayPhase(blobCount, "🚨 對手陣型匯入成功！任務開始！");
-
-            } catch (e) {
-                alert("❌ 匯入失敗！代碼無效。請確認對手提供的是「NTU-」開頭的新版代碼。");
-                console.error("匯入錯誤:", e);
-            }
-        }
-
-        function addMoves(amount, type) {
-            if (amount < 0 && movesLeft === 0) {
-                showMessage(`⏪ 已經是 0 步了，無法再扣除電量！`);
-                return;
-            }
-
-            let actualAmount = amount;
-            if (movesLeft + amount < 0) actualAmount = -movesLeft;
-
-            movesLeft += actualAmount;
-            document.getElementById('moves-display').innerText = movesLeft;
-
-            if (type === 'win') gmStats.win++;
-            else if (type === 'lose') gmStats.lose++;
-            
-            gmStats.total += actualAmount;
-            
-            updateGMStatsUI();
-            saveGame(); 
-            
-            if (actualAmount > 0) {
-                showMessage(`🔋 充電成功！獲得 ${actualAmount} 單位電量，目前共有 ${movesLeft} 步可以掃描。`);
-            } else {
-                showMessage(`⏪ 已收回 ${Math.abs(actualAmount)} 單位電量！目前剩下 ${movesLeft} 步。`);
-            }
-        }
-
-        function updateGMStatsUI() {
-            document.getElementById('stat-win').innerText = gmStats.win;
-            document.getElementById('stat-lose').innerText = gmStats.lose;
-            document.getElementById('stat-secret').innerText = gmStats.secret;
-            document.getElementById('stat-total').innerText = gmStats.total;
-        }
-
-        function manualSettle() {
-            if(confirm("確定要立刻結算並公開所有怪盜藏匿點嗎？結算後將無法繼續搜索！")) {
-                movesLeft = 0; 
-                document.getElementById('moves-display').innerText = movesLeft;
-                showMessage(`🛑 搜索行動結束！本次小隊共尋回價值 ${score} 分的樂器！`);
-                endGameDisplay();
-                clearSave(); 
-            }
-        }
-
-        function updateInventoryUI() {
-            if (phase !== 'setup') return;
-            const inventoryDiv = document.getElementById('inventory-list');
-            inventoryDiv.innerHTML = '<div class="inventory-header">📋 怪盜贓物清單 (庫存)</div>';
-            
-            for (let icon in LIMITS) {
-                const limit = LIMITS[icon];
-                const currentCount = treasures.filter(t => t.icon === icon).length;
-                const nameStr = NAMES_AND_SIZES[icon];
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'inventory-item';
-                if (currentCount >= limit) itemDiv.classList.add('limit-reached');
-                itemDiv.innerHTML = `<span>${icon} ${nameStr}</span> <span>${currentCount} / ${limit}</span>`;
-                inventoryDiv.appendChild(itemDiv);
-            }
-        }
-
-        function updatePlayReferenceUI() {
-            if (phase !== 'play') return;
-            const refDiv = document.getElementById('play-reference');
-            refDiv.innerHTML = '<div class="inventory-header">📡 探測器分析：遺失物列表</div>';
-            
-            let hiddenCounts = {};
-            let foundCounts = {};
-            
-            treasures.forEach(t => {
-                hiddenCounts[t.icon] = (hiddenCounts[t.icon] || 0) + 1;
-                if (t.foundCount === t.size) {
-                    foundCounts[t.icon] = (foundCounts[t.icon] || 0) + 1;
-                }
-            });
-
-            for (let icon in hiddenCounts) {
-                const total = hiddenCounts[icon];
-                const found = foundCounts[icon] || 0;
-                const nameStr = NAMES_AND_SIZES[icon];
-                const pt = POINTS_MAP[treasures.find(t=>t.icon === icon).size];
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'inventory-item';
-                
-                if (found === total) {
-                    itemDiv.style.color = '#2ecc71';
-                    itemDiv.style.fontWeight = 'bold';
-                }
-                itemDiv.innerHTML = `<span>${icon} ${nameStr} <small>(${pt}分)</small></span> <span>${found} / ${total}</span>`;
-                refDiv.appendChild(itemDiv);
-            }
-        }
-
-        function saveGame() {
-            const gameState = { 
-                board, treasures, phase, score, movesLeft, treasureIdCounter, totalTreasureCells, 
-                gmStats, easterEggs 
-            };
-            localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
-        }
-
-        function clearSave() { localStorage.removeItem(SAVE_KEY); }
-
-        function restartGame() {
-            if(confirm("確定要重啟特快車任務嗎？這會清除小隊目前的進度喔！")) {
-                clearSave();
-                location.reload();
-            }
-        }
-
-        function initBoard() {
-            const boardDiv = document.getElementById('board');
-            boardDiv.innerHTML = '';
-            board = [];
-            treasures = []; 
-            treasureIdCounter = 1;
-            totalTreasureCells = 0;
-            document.getElementById('flag-controls').style.display = 'none';
-            
-            isFlagMode = false;
-            modeToggleCount = 0;
-            const toggleBtn = document.getElementById('mode-toggle-btn');
-            if (toggleBtn) {
-                toggleBtn.innerText = "目前狀態：⛏️ 挖掘探測模式";
-                toggleBtn.style.background = "#27ae60";
-            }
-
-            for (let r = 0; r < SIZE; r++) {
-                board[r] = [];
-                for (let c = 0; c < SIZE; c++) {
-                    board[r][c] = { treasureId: 0, revealed: false, flagged: false };
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.id = `cell-${r}-${c}`;
-                    cell.onclick = () => handleCellClick(r, c);
-                    cell.onmouseenter = () => handleCellHover(r, c);
-                    cell.oncontextmenu = (e) => {
-                        e.preventDefault();
-                        if (phase === 'play') toggleFlag(r, c);
-                    };
-                    boardDiv.appendChild(cell);
-                }
-            }
-            updateInventoryUI(); 
-        }
-
-        function loadGameAndInit() {
-            initData();
-            const savedData = localStorage.getItem(SAVE_KEY);
-            if (savedData) {
-                const state = JSON.parse(savedData);
-                if (!state.board || state.board.length !== SIZE) { initBoard(); return; }
-
-                board = state.board;
-                treasures = state.treasures;
-                phase = state.phase;
-                score = state.score;
-                movesLeft = state.movesLeft;
-                treasureIdCounter = state.treasureIdCounter;
-                totalTreasureCells = state.totalTreasureCells || 0;
-                
-                if (state.gmStats) gmStats = state.gmStats;
-                if (state.easterEggs) {
-                    for (let key in easterEggs) {
-                        if (state.easterEggs[key]) {
-                            easterEggs[key].unlocked = state.easterEggs[key].unlocked;
-                        }
-                    }
-                }
-
-                const boardDiv = document.getElementById('board');
-                boardDiv.innerHTML = '';
-                for (let r = 0; r < SIZE; r++) {
-                    for (let c = 0; c < SIZE; c++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'cell';
-                        cell.id = `cell-${r}-${c}`;
-                        cell.onclick = () => handleCellClick(r, c);
-                        cell.onmouseenter = () => handleCellHover(r, c);
-                        cell.oncontextmenu = (e) => {
-                            e.preventDefault();
-                            if (phase === 'play') toggleFlag(r, c);
-                        };
-
-                        const cellData = board[r][c];
-                        if (phase === 'setup' && cellData.treasureId !== 0) {
-                            cell.classList.add('setup-treasure');
-                            const treasure = treasures.find(t => t.id === cellData.treasureId);
-                            if (treasure) cell.innerText = treasure.icon;
-                        }
-
-                        if (cellData.revealed) {
-                            cell.classList.add('revealed');
-                            if (cellData.treasureId === 0) {
-                                cell.classList.add('miss');
-                                const count = countAdjacentTreasures(r, c);
-                                if (count > 0) {
-                                    cell.innerText = count;
-                                    cell.classList.add(`n${count}`);
-                                }
-                            } else {
-                                cell.classList.add('hit');
-                                const treasure = treasures.find(t => t.id === cellData.treasureId);
-                                cell.innerText = treasure.icon;
-                                if (treasure.foundCount === treasure.size) {
-                                    cell.classList.add('completed');
-                                }
-                            }
-                        } else if (cellData.flagged && phase === 'play') {
-                            cell.innerText = "🚩";
-                            cell.classList.add('flagged');
-                        }
-                        boardDiv.appendChild(cell);
-                    }
-                }
-
-                if (phase === 'play') {
-                    document.getElementById('setup-panel').style.display = 'none';
-                    document.getElementById('play-panel').style.display = 'block';
-                    document.getElementById('flag-controls').style.display = 'block'; 
-                    document.getElementById('score-display').innerText = score;
-                    document.getElementById('moves-display').innerText = movesLeft;
-                    updatePlayReferenceUI();
-                    updateGMStatsUI();
-                    showMessage("📡 系統連線成功！自動恢復先前的搜索進度。");
-                } else {
-                    document.getElementById('flag-controls').style.display = 'none';
-                    updateInventoryUI(); 
-                    showMessage("🎵 歡迎回來！請繼續掩埋樂器。");
-                }
-            } else {
-                initBoard();
-            }
-        }
-
-        function clearPreview() {
-            document.querySelectorAll('.preview-valid, .preview-invalid').forEach(el => {
-                el.classList.remove('preview-valid', 'preview-invalid');
-            });
-        }
-
-        function handleCellHover(r, c) {
-            if (phase !== 'setup') return;
-            clearPreview(); 
-
-            if (board[r][c].treasureId !== 0) {
-                const treasure = treasures.find(t => t.id === board[r][c].treasureId);
-                if (treasure) treasure.cells.forEach(pos => document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('preview-invalid'));
-                return;
-            }
-
-            const typeInfo = document.getElementById('treasure-type').value.split(',');
-            const w = parseInt(typeInfo[0]); const h = parseInt(typeInfo[1]); const icon = typeInfo[2];
-
-            let isValid = true;
-            let cellsToPreview = [];
-            if (treasures.filter(t => t.icon === icon).length >= LIMITS[icon]) isValid = false; 
-            if (r + h > SIZE || c + w > SIZE) isValid = false;
-
-            for (let i = 0; i < h; i++) {
-                for (let j = 0; j < w; j++) {
-                    if (r + i < SIZE && c + j < SIZE) {
-                        cellsToPreview.push({r: r + i, c: c + j});
-                        if (board[r + i][c + j].treasureId !== 0) isValid = false;
-                    }
-                }
-            }
-
-            cellsToPreview.forEach(pos => {
-                const cellDiv = document.getElementById(`cell-${pos.r}-${pos.c}`);
-                cellDiv.classList.add(isValid ? 'preview-valid' : 'preview-invalid');
-            });
-        }
-
-        function handleCellClick(r, c) {
-            if (phase === 'setup') {
-                if (board[r][c].treasureId !== 0) removeTreasure(r, c);
-                else placeTreasure(r, c);
-            } else if (phase === 'play') {
-                if (isFlagMode) {
-                    toggleFlag(r, c);
-                } else {
-                    revealCell(r, c);
-                }
-            }
-        }
-
-        function toggleFlag(r, c) {
-            if (phase !== 'play' || board[r][c].revealed) return;
-            board[r][c].flagged = !board[r][c].flagged;
-            const cellDiv = document.getElementById(`cell-${r}-${c}`);
-            if (board[r][c].flagged) {
-                cellDiv.innerText = "🚩";
-                cellDiv.classList.add('flagged');
-            } else {
-                cellDiv.innerText = "";
-                cellDiv.classList.remove('flagged');
-            }
-            saveGame();
-        }
-
-        function removeTreasure(r, c) {
-            const treasureIndex = treasures.findIndex(t => t.id === board[r][c].treasureId);
-            if (treasureIndex === -1) return;
-
-            const treasure = treasures[treasureIndex];
-            treasure.cells.forEach(pos => {
-                board[pos.r][pos.c].treasureId = 0;
-                const cellDiv = document.getElementById(`cell-${pos.r}-${pos.c}`);
-                cellDiv.classList.remove('setup-treasure');
-                cellDiv.innerText = ""; 
-            });
-
-            totalTreasureCells -= treasure.size;
-            treasures.splice(treasureIndex, 1);
-            showMessage(`🗑️ 已挖出 ${treasure.icon}，請重新選擇掩埋地點！`);
-            updateInventoryUI(); 
-            saveGame(); clearPreview(); handleCellHover(r, c); 
-        }
-
-        function placeTreasure(r, c) {
-            const typeInfo = document.getElementById('treasure-type').value.split(',');
-            const w = parseInt(typeInfo[0]); const h = parseInt(typeInfo[1]); const icon = typeInfo[2];        
-
-            if (treasures.filter(t => t.icon === icon).length >= LIMITS[icon]) {
-                showMessage(`❗ ${icon} 的數量已經達到上限！`); return;
-            }
-            if (r + h > SIZE || c + w > SIZE) { showMessage("❗ 超出荒野範圍了！"); return; }
-
-            for (let i = 0; i < h; i++) {
-                for (let j = 0; j < w; j++) {
-                    if (board[r + i][c + j].treasureId !== 0) { showMessage("❗ 這裡已經埋了其他東西！"); return; }
-                }
-            }
-
-            const newTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: w * h, foundCount: 0 };
-            for (let i = 0; i < h; i++) {
-                for (let j = 0; j < w; j++) {
-                    board[r + i][c + j].treasureId = treasureIdCounter;
-                    newTreasure.cells.push({ r: r + i, c: c + j });
-                    const cellDiv = document.getElementById(`cell-${r + i}-${c + j}`);
-                    cellDiv.classList.add('setup-treasure');
-                    cellDiv.innerText = icon; 
-                }
-            }
-
-            treasures.push(newTreasure);
-            treasureIdCounter++;
-            totalTreasureCells += w * h;
-            showMessage(`✅ 成功隱藏 ${icon}！`);
-            updateInventoryUI(); saveGame(); clearPreview(); handleCellHover(r, c); 
-        }
-
-        function placeRandomTreasure(w, h, icon) {
-            let maxAttempts = 100;
-            for(let attempt = 0; attempt < maxAttempts; attempt++) {
-                let r = Math.floor(Math.random() * (SIZE - h + 1));
-                let c = Math.floor(Math.random() * (SIZE - w + 1));
-                let canPlace = true;
-                for (let i = 0; i < h; i++) {
-                    for (let j = 0; j < w; j++) {
-                        if (board[r + i][c + j].treasureId !== 0) { canPlace = false; break; }
-                    }
-                    if (!canPlace) break;
-                }
-                if (canPlace) {
-                    const newTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: w * h, foundCount: 0 };
-                    for (let i = 0; i < h; i++) {
-                        for (let j = 0; j < w; j++) {
-                            board[r + i][c + j].treasureId = treasureIdCounter;
-                            newTreasure.cells.push({ r: r + i, c: c + j });
-                        }
-                    }
-                    treasures.push(newTreasure);
-                    treasureIdCounter++;
-                    totalTreasureCells += w * h;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function getValidNeighbors(r, c, currentBlob) {
-            let neighbors = [];
-            const dirs = [[-1,0], [1,0], [0,-1], [0,1]]; 
-            for (let d of dirs) {
-                let nr = r + d[0]; let nc = c + d[1];
-                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                    if (board[nr][nc].treasureId === 0 && !currentBlob.some(b => b.r === nr && b.c === nc)) {
-                        neighbors.push({r: nr, c: nc});
-                    }
-                }
-            }
-            return neighbors;
-        }
-
-        function findMostEmptyCell() {
-            let dist = Array.from({length: SIZE}, () => Array(SIZE).fill(Infinity));
-            let queue = [];
-            
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (board[r][c].treasureId !== 0) {
-                        dist[r][c] = 0;
-                        queue.push({r, c});
-                    }
-                }
-            }
-            
-            if (queue.length === 0) return {r: Math.floor(SIZE/2), c: Math.floor(SIZE/2)};
-            
-            const dirs = [[-1,0], [1,0], [0,-1], [0,1]];
-            let head = 0;
-            while(head < queue.length) {
-                let {r, c} = queue[head++];
-                for(let d of dirs) {
-                    let nr = r + d[0], nc = c + d[1];
-                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                        if (dist[r][c] + 1 < dist[nr][nc]) {
-                            dist[nr][nc] = dist[r][c] + 1;
-                            queue.push({r: nr, c: nc});
-                        }
-                    }
-                }
-            }
-            
-            let maxDist = -1;
-            let candidates = [];
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (board[r][c].treasureId === 0) {
-                        if (dist[r][c] > maxDist) {
-                            maxDist = dist[r][c];
-                            candidates = [{r, c}];
-                        } else if (dist[r][c] === maxDist) {
-                            candidates.push({r, c});
-                        }
-                    }
-                }
-            }
-            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
-            return null;
-        }
-
-        function placeRandomBlob(targetSize, icon) {
-            let maxAttempts = 100;
-            for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                let startR, startC;
-                
-                if (attempt < 20) {
-                    let startCell = findMostEmptyCell();
-                    if (!startCell) return false; 
-                    
-                    let rOffset = Math.floor(Math.random() * 3) - 1; 
-                    let cOffset = Math.floor(Math.random() * 3) - 1;
-                    
-                    startR = Math.max(0, Math.min(SIZE - 1, startCell.r + rOffset));
-                    startC = Math.max(0, Math.min(SIZE - 1, startCell.c + cOffset));
-                    
-                    if (board[startR][startC].treasureId !== 0) {
-                        startR = startCell.r;
-                        startC = startCell.c;
-                    }
-                } else {
-                    startR = Math.floor(Math.random() * SIZE);
-                    startC = Math.floor(Math.random() * SIZE);
-                    if (board[startR][startC].treasureId !== 0) continue;
-                }
-
-                let blobCells = [{r: startR, c: startC}];
-                let candidates = getValidNeighbors(startR, startC, blobCells);
-
-                while (blobCells.length < targetSize && candidates.length > 0) {
-                    let randIdx = Math.floor(Math.random() * candidates.length);
-                    let nextCell = candidates[randIdx];
-
-                    blobCells.push(nextCell);
-                    candidates.splice(randIdx, 1);
-
-                    let newNeighbors = getValidNeighbors(nextCell.r, nextCell.c, blobCells);
-                    for (let nn of newNeighbors) {
-                        if (!candidates.some(c => c.r === nn.r && c.c === nn.c)) {
-                            candidates.push(nn);
-                        }
-                    }
-                }
-
-                if (blobCells.length === targetSize) {
-                    const mysteryTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: targetSize, foundCount: 0 };
-                    blobCells.forEach(pos => {
-                        board[pos.r][pos.c].treasureId = treasureIdCounter;
-                        mysteryTreasure.cells.push({ r: pos.r, c: pos.c });
-                    });
-                    treasures.push(mysteryTreasure);
-                    treasureIdCounter++;
-                    totalTreasureCells += targetSize;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function startGame() {
-            if (treasures.length === 0) { showMessage("⚠️ 請至少藏匿一個樂器！"); return; }
-            
-            const b1 = placeRandomBlob(8, '👾');
-            const b2 = placeRandomBlob(8, '👾');
-            let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
-            
-            gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
-            updateGMStatsUI();
-            
-            executePlayPhase(blobCount, "🚨 任務開始！小隊必須解鎖步數才能開始尋寶。");
-        }
-
-        function randomStartGame() {
-            if(confirm("確定要隨機生成地圖並以 90 步開始嗎？原本的配置將會被清除！")) {
-                initBoard(); 
-                for (let icon in LIMITS) {
-                    let limit = LIMITS[icon];
-                    let shape = SHAPE_MAP[icon];
-                    for(let i=0; i<limit; i++) { placeRandomTreasure(shape.w, shape.h, icon); }
-                }
-                
-                const b1 = placeRandomBlob(8, '👾');
-                const b2 = placeRandomBlob(8, '👾');
-                let blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
-                
-                movesLeft = 90; 
-                gmStats = { win: 0, lose: 0, secret: 0, total: 90, authorUnlocked: false };
-                updateGMStatsUI();
-
-                executePlayPhase(blobCount, "🎲 隨機地圖生成完畢！已提供 90 步雷達電量，開始尋寶！");
-            }
-        }
-
-        function executePlayPhase(blobCount, defaultMsg) {
-            phase = 'play';
-            score = 0;
-            document.getElementById('setup-panel').style.display = 'none';
-            document.getElementById('play-panel').style.display = 'block';
-            document.getElementById('flag-controls').style.display = 'block'; 
-            document.getElementById('moves-display').innerText = movesLeft;
-            document.getElementById('score-display').innerText = score;
-            
-            updatePlayReferenceUI();
-
-            if (blobCount > 0) { 
-                showMessage(defaultMsg + ` (已產生 ${blobCount} 個 👾 神秘彩蛋)`); 
-            } else { 
-                showMessage(defaultMsg); 
-            }
-            
-            clearPreview(); 
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    const cellDiv = document.getElementById(`cell-${r}-${c}`);
-                    cellDiv.classList.remove('setup-treasure');
-                    cellDiv.innerText = ""; 
-                }
-            }
-            saveGame(); 
-        }
-
-        function countAdjacentTreasures(r, c) {
-            let count = 0;
-            for (let i = -1; i <= 1; i++) {
-                for (let j = -1; j <= 1; j++) {
-                    if (i === 0 && j === 0) continue; 
-                    const nr = r + i; const nc = c + j;
-                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                        if (board[nr][nc].treasureId !== 0) count++;
-                    }
-                }
-            }
-            return count;
-        }
-
-        function revealCell(r, c) {
-            if (board[r][c].revealed || board[r][c].flagged) return; 
-
-            if (movesLeft <= 0) {
-                showMessage("⚠️ 雷達電量不足！請小隊先去完成關卡任務充電。");
-                return;
-            }
-
-            board[r][c].revealed = true;
-            movesLeft--;
-            document.getElementById('moves-display').innerText = movesLeft;
-
-            const cellDiv = document.getElementById(`cell-${r}-${c}`);
-            cellDiv.classList.add('revealed');
-            const tId = board[r][c].treasureId;
-
-            if (tId === 0) {
-                cellDiv.classList.add('miss');
-                const count = countAdjacentTreasures(r, c);
-                if (count > 0) {
-                    cellDiv.innerText = count;
-                    cellDiv.classList.add(`n${count}`); 
-                } else cellDiv.innerText = "";
-                showMessage("這裡只是一片空蕩蕩的草地...");
-            } else {
-                const treasure = treasures.find(t => t.id === tId);
-                cellDiv.classList.add('hit');
-                cellDiv.innerText = treasure.icon; 
-                
-                treasure.foundCount++;
-
-                if (treasure.foundCount === treasure.size) {
-                    const pt = POINTS_MAP[treasure.size];
-                    score += pt;
-                    document.getElementById('score-display').innerText = score;
-
-                    if (treasure.icon === '👾') {
-                        showMessage(`🔥 驚人發現！破解了 👾 怪盜的陷阱，一口氣奪回 ${pt} 分！`);
-                    } else {
-                        showMessage(`✨ 太棒了！順利尋回 ${treasure.icon} (+${pt} 分)`);
-                    }
-
-                    treasure.cells.forEach(pos => document.getElementById(`cell-${pos.r}-${pos.c}`).classList.add('completed'));
-                    updatePlayReferenceUI();
-                } else {
-                    showMessage(`📡 雷達有反應！掃描到 ${treasure.icon} 的一部分了，繼續挖！`);
-                }
-            }
-
-            checkGameOver();
-        }
-
-        function checkGameOver() {
-            const allFound = treasures.every(t => t.foundCount === t.size);
-            
-            if (allFound) {
-                showMessage(`🎊 奇蹟！所有樂器都找回來了！演唱會準備開始！最終得分：${score} 分！`);
-                movesLeft = 0; 
-                endGameDisplay();
-                clearSave(); 
-            } else {
-                saveGame(); 
-            }
-        }
-        
-        function endGameDisplay() {
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (!board[r][c].revealed && board[r][c].treasureId !== 0) {
-                        const cellDiv = document.getElementById(`cell-${r}-${c}`);
-                        const treasure = treasures.find(t => t.id === board[r][c].treasureId);
-                        cellDiv.innerText = treasure.icon; 
-                        cellDiv.style.backgroundColor = "#2c3e50"; 
-                        cellDiv.style.border = "1px solid #7f8c8d";
-                    }
-                }
-            }
-            document.getElementById('flag-controls').style.display = 'none'; 
-        }
-
-        function showMessage(msg) { document.getElementById('message').innerText = msg; }
-
-        loadGameAndInit();
-    </script>
 </body>
 </html>

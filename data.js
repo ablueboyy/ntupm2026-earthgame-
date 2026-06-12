@@ -1,6 +1,14 @@
 // 這裡維護所有的更新日誌
 const UPDATE_LOGS = [
     {
+        version: "v1.3.0",
+        date: "6/12",
+        color: "#322488", // 紫色
+        items: [
+            "Redesign the game art"
+        ]
+    },
+    {
         version: "v1.2.2",
         date: "5/31",
         color: "#8e44ad", // 紫色
