@@ -107,6 +107,17 @@ body > * { position: relative; z-index: 1; }
     color: var(--text-bright);
 }
 
+.btn-nav-restart {
+    background: rgba(180,40,40,0.15);
+    border-color: rgba(220,80,80,0.25);
+    color: #e88;
+}
+.btn-nav-restart:hover {
+    background: rgba(180,40,40,0.28);
+    border-color: rgba(220,80,80,0.5);
+    color: #faa;
+}
+
 #egg-log-btn {
     background: rgba(155,89,182,0.18);
     border-color: rgba(155,89,182,0.4);
@@ -268,8 +279,8 @@ h3 {
     box-shadow: var(--shadow-panel), 0 0 0 1px var(--border-subtle) inset;
     display: inline-block;
     border: 1px solid var(--border-subtle);
-    min-width: 340px;
-    max-width: 420px;
+    min-width: 580px;
+    max-width: 740px;
     width: 90%;
     backdrop-filter: blur(12px);
     position: relative;
@@ -427,7 +438,8 @@ button:active { transform: translateY(0px); }
     background: transparent;
     border: 1px solid rgba(231,76,60,0.35);
     color: var(--red);
-    width: auto;
+    width: 100%;
+    margin-top: 8px;
     padding: 7px 20px;
     box-shadow: none;
     font-weight: 600;
@@ -467,22 +479,34 @@ button:active { transform: translateY(0px); }
 
 /* ===== Stats ===== */
 .stats {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
 }
 
 .stat-item {
+    flex: 1;
     background: rgba(0,0,0,0.32);
-    padding: 10px 16px;
+    padding: 8px 10px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-subtle);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-align: center;
+}
+
+/* Stat label (first span) */
+.stat-item > span:first-child {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+    font-weight: 600;
 }
 
 #score-display {
@@ -527,6 +551,18 @@ button:active { transform: translateY(0px); }
     font-size: 12px;
     line-height: 1.9;
     border: 1px solid var(--border-subtle);
+}
+
+/* ===== Two-column layout inside panels ===== */
+.panel-columns {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.panel-col {
+    flex: 1;
+    min-width: 0;
 }
 
 /* ===== Setup Panel Hint ===== */
@@ -888,10 +924,27 @@ hr {
     }
 }
 
+@media (max-width: 640px) {
+    /* Stack panel columns vertically on narrow screens */
+    .panel-columns { flex-direction: column; gap: 12px; }
+    #controls { min-width: 0; }
+
+    /* Revert stats to vertical on mobile */
+    .stats { flex-direction: column; }
+    .stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        gap: 0;
+    }
+    .stat-item > span:first-child { font-size: 13px; color: var(--text-normal); }
+}
+
 @media (max-width: 600px) {
     h1 { font-size: 1.8rem; margin-top: 72px; }
     body { padding: 12px; }
-    #controls { min-width: 0; padding: 16px; }
+    #controls { padding: 16px; }
     .top-right-nav { top: 10px; right: 10px; gap: 5px; }
     .nav-btn { padding: 6px 10px; font-size: 11px; }
     #board {

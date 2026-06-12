@@ -15,6 +15,7 @@
     <div class="top-right-nav">
         <button id="egg-log-btn" class="nav-btn" onclick="openEggLog()">💿 專輯曲目</button>
         <button id="update-log-btn" class="nav-btn" onclick="openLog()">📜 更新紀錄</button>
+        <button class="nav-btn btn-nav-restart" onclick="restartGame()">↺ 重新一局</button>
     </div>
 
     <!-- Update Log Modal -->
@@ -53,63 +54,66 @@
         <!-- Phase 1: Setup -->
         <div id="setup-panel">
             <h3>🧳 第一階段：藏匿樂器</h3>
-
-            <div id="inventory-list" class="info-list"></div>
-
-            <p class="setup-hint">🔹 你們進入了怪盜的意識中，請幫助他在 16×16 的荒野中手動埋藏樂器。點選右側按鈕選擇樂器，再點地圖格子放置。</p>
-
-            <hr>
-
-            <div class="btn-group">
-                <button class="btn-export" onclick="exportCode()">📤 匯出藏匿密報</button>
-                <button class="btn-import" onclick="importCode()">📥 匯入對手密報</button>
+            <div class="panel-columns">
+                <div class="panel-col">
+                    <div id="inventory-list" class="info-list"></div>
+                </div>
+                <div class="panel-col">
+                    <p class="setup-hint">🔹 你們進入了怪盜的意識中，請幫助他在 16×16 的荒野中手動埋藏樂器。點選右側按鈕選擇樂器，再點地圖格子放置。</p>
+                    <hr>
+                    <div class="btn-group">
+                        <button class="btn-export" onclick="exportCode()">📤 匯出藏匿密報</button>
+                        <button class="btn-import" onclick="importCode()">📥 匯入對手密報</button>
+                    </div>
+                    <button onclick="startGame()">▶ 單機遊玩（完成佈置，開始）</button>
+                    <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成並單機遊玩（90步）</button>
+                </div>
             </div>
-
-            <button onclick="startGame()" style="margin-top:10px;">▶ 單機遊玩（完成佈置，開始）</button>
-            <button class="btn-random" onclick="randomStartGame()">🎲 隨機生成並單機遊玩（90步）</button>
         </div>
 
         <!-- Phase 2: Play -->
         <div id="play-panel" style="display:none;">
             <h3>📡 第二階段：雷達搜索</h3>
-
-            <div id="play-reference" class="info-list"></div>
-
-            <div class="stats">
-                <div class="stat-item">
-                    <span>⭐ 總分</span>
-                    <span id="score-display">0</span>
+            <div class="panel-columns">
+                <div class="panel-col">
+                    <div id="play-reference" class="info-list"></div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span>⭐ 總分</span>
+                            <span id="score-display">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>⚡ 雷達電量</span>
+                            <span id="moves-display">0</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span>⚡ 雷達電量（步數）</span>
-                    <span id="moves-display">0</span>
+                <div class="panel-col">
+                    <!-- GM Panel -->
+                    <div class="gm-panel">
+                        <div class="gm-panel-title">🎮 隨隊關主專用：為小隊充電</div>
+
+                        <div id="gm-stats-panel" class="gm-stats">
+                            📊 操作紀錄：勝利
+                            <span id="stat-win" style="color:#2ecc71;font-weight:bold;">0</span> 次 |
+                            失敗 <span id="stat-lose" style="color:#e67e22;font-weight:bold;">0</span> 次 |
+                            解鎖彩蛋 <span id="stat-secret" style="color:#9b59b6;font-weight:bold;">0</span> 次<br>
+                            本局總發放電量(含扣除)：<span id="stat-total" style="color:#f1c40f;font-weight:bold;font-size:15px;">0</span> 步
+                        </div>
+
+                        <div class="gm-btn-group">
+                            <button class="gm-btn btn-win"    onclick="addMoves(15, 'win')">🏆 勝利 +15步</button>
+                            <button class="gm-btn btn-lose"   onclick="addMoves(10, 'lose')">💪 失敗 +10步</button>
+                            <button class="gm-btn btn-secret" onclick="promptEasterEgg()">🕵️ 破解曲目</button>
+                            <button class="gm-btn btn-undo"   onclick="addMoves(-5, 'undo')">⏪ 扣除 -5步</button>
+                        </div>
+
+                        <hr>
+                        <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
+                    </div>
+
                 </div>
             </div>
-
-            <!-- GM Panel -->
-            <div class="gm-panel">
-                <div class="gm-panel-title">🎮 隨隊關主專用：為小隊充電</div>
-
-                <div id="gm-stats-panel" class="gm-stats">
-                    📊 操作紀錄：勝利
-                    <span id="stat-win" style="color:#2ecc71;font-weight:bold;">0</span> 次 |
-                    失敗 <span id="stat-lose" style="color:#e67e22;font-weight:bold;">0</span> 次 |
-                    解鎖彩蛋 <span id="stat-secret" style="color:#9b59b6;font-weight:bold;">0</span> 次<br>
-                    本局總發放電量(含扣除)：<span id="stat-total" style="color:#f1c40f;font-weight:bold;font-size:15px;">0</span> 步
-                </div>
-
-                <div class="gm-btn-group">
-                    <button class="gm-btn btn-win"    onclick="addMoves(15, 'win')">🏆 勝利 +15步</button>
-                    <button class="gm-btn btn-lose"   onclick="addMoves(10, 'lose')">💪 失敗 +10步</button>
-                    <button class="gm-btn btn-secret" onclick="promptEasterEgg()">🕵️ 破解曲目</button>
-                    <button class="gm-btn btn-undo"   onclick="addMoves(-5, 'undo')">⏪ 扣除 -5步</button>
-                </div>
-
-                <hr>
-                <button class="gm-btn btn-settle" onclick="manualSettle()">🛑 結束探索並公開剩餘位置</button>
-            </div>
-
-            <button class="btn-restart" onclick="restartGame()">↺ 重新一局（清除存檔）</button>
         </div>
 
     </div>

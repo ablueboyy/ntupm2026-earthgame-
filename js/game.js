@@ -20,8 +20,12 @@ function toggleMode() {
     }
 
     if (phase === 'play') {
-        modeToggleCount++;
-        if (modeToggleCount === 10 && easterEggs['egg6'] && !easterEggs['egg6'].unlocked) {
+        const now = Date.now();
+        if (!window._toggleTimestamps) window._toggleTimestamps = [];
+        window._toggleTimestamps.push(now);
+        window._toggleTimestamps = window._toggleTimestamps.filter(t => now - t <= 30000);
+        if (window._toggleTimestamps.length >= 10 && easterEggs['egg6'] && !easterEggs['egg6'].unlocked) {
+            window._toggleTimestamps = [];
             unlockEgg('egg6');
         }
     }
@@ -157,10 +161,10 @@ function clearSave() {
 }
 
 function restartGame() {
-    if (confirm('確定要重啟特快車任務嗎？這會清除小隊目前的進度喔！')) {
-        clearSave();
-        location.reload();
-    }
+    if (!confirm('確定要重新一局嗎？這將清除小隊目前的所有進度！')) return;
+    if (!confirm('再次確認：真的要清除存檔並重新開始嗎？')) return;
+    clearSave();
+    location.reload();
 }
 
 // ===== Treasure Placement =====
