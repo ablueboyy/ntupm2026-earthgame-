@@ -929,16 +929,6 @@ hr {
     .panel-columns { flex-direction: column; gap: 12px; }
     #controls { min-width: 0; }
 
-    /* Revert stats to vertical on mobile */
-    .stats { flex-direction: column; }
-    .stat-item {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        text-align: left;
-        gap: 0;
-    }
-    .stat-item > span:first-child { font-size: 13px; color: var(--text-normal); }
 }
 
 @media (max-width: 600px) {
