@@ -1,6 +1,16 @@
 // 這裡維護所有的更新日誌
 const UPDATE_LOGS = [
     {
+        version: "v1.3.1",
+        date: "7/20",
+        color: "#322488", // 紫色
+        items: [
+            "Replaced the 'Restart' button in the navigation bar with 'End Exploration', which settles the round and reveals all remaining hiding spots.",
+            "Removed the duplicated 'End Exploration & Reveal Remaining' button from the GM panel.",
+            "Removed both single-player buttons for the official release; a round now starts only by importing the opponent's Formation Code."
+        ]
+    },
+    {
         version: "v1.3.0",
         date: "6/12",
         color: "#322488", // 紫色

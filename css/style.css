@@ -396,13 +396,6 @@ button:active { transform: translateY(0px); }
 .btn-import { background: linear-gradient(135deg, #8e44ad, #6c3483); box-shadow: 0 4px 14px rgba(142,68,173,0.25); }
 .btn-import:hover { box-shadow: 0 6px 20px rgba(155,89,182,0.45); }
 
-.btn-random {
-    background: linear-gradient(135deg, #16a085, #0e6655);
-    box-shadow: 0 4px 14px rgba(22,160,133,0.25);
-    margin-top: 12px;
-}
-.btn-random:hover { box-shadow: 0 6px 20px rgba(26,188,156,0.45); }
-
 /* GM Buttons */
 .gm-btn {
     width: auto;
@@ -425,14 +418,6 @@ button:active { transform: translateY(0px); }
 
 .btn-undo { background: linear-gradient(135deg, #c0392b, #922b21); }
 .btn-undo:hover { box-shadow: 0 4px 14px rgba(192,57,43,0.4); }
-
-.btn-settle {
-    background: linear-gradient(135deg, #374151, #1f2937);
-    box-shadow: none;
-    width: 100%;
-    margin: 4px 0 0 0;
-}
-.btn-settle:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
 
 .btn-restart {
     background: transparent;

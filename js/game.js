@@ -137,6 +137,10 @@ function addMoves(amount, type) {
 }
 
 function manualSettle() {
+    if (phase !== 'play') {
+        showMessage('⚠️ 尚未開始探索，無法結束。');
+        return;
+    }
     if (confirm('確定要立刻結算並公開所有怪盜藏匿點嗎？結算後將無法繼續搜索！')) {
         movesLeft = 0;
         document.getElementById('moves-display').innerText = movesLeft;
@@ -158,13 +162,6 @@ function saveGame() {
 
 function clearSave() {
     localStorage.removeItem(SAVE_KEY);
-}
-
-function restartGame() {
-    if (!confirm('確定要重新一局嗎？這將清除小隊目前的所有進度！')) return;
-    if (!confirm('再次確認：真的要清除存檔並重新開始嗎？')) return;
-    clearSave();
-    location.reload();
 }
 
 // ===== Treasure Placement =====
@@ -235,35 +232,6 @@ function removeTreasure(r, c) {
     saveGame();
     clearPreview();
     handleCellHover(r, c);
-}
-
-function placeRandomTreasure(w, h, icon) {
-    for (let attempt = 0; attempt < 100; attempt++) {
-        let r = Math.floor(Math.random() * (SIZE - h + 1));
-        let c = Math.floor(Math.random() * (SIZE - w + 1));
-        let canPlace = true;
-
-        for (let i = 0; i < h && canPlace; i++) {
-            for (let j = 0; j < w; j++) {
-                if (board[r + i][c + j].treasureId !== 0) { canPlace = false; break; }
-            }
-        }
-
-        if (canPlace) {
-            const newTreasure = { id: treasureIdCounter, icon: icon, cells: [], size: w * h, foundCount: 0 };
-            for (let i = 0; i < h; i++) {
-                for (let j = 0; j < w; j++) {
-                    board[r + i][c + j].treasureId = treasureIdCounter;
-                    newTreasure.cells.push({ r: r + i, c: c + j });
-                }
-            }
-            treasures.push(newTreasure);
-            treasureIdCounter++;
-            totalTreasureCells += w * h;
-            return true;
-        }
-    }
-    return false;
 }
 
 // ===== Blob Placement (for 👾 traps) =====
@@ -369,41 +337,6 @@ function placeRandomBlob(targetSize, icon) {
 }
 
 // ===== Game Phase Transitions =====
-
-function startGame() {
-    if (treasures.length === 0) { showMessage('⚠️ 請至少藏匿一個樂器！'); return; }
-
-    const b1 = placeRandomBlob(8, '👾');
-    const b2 = placeRandomBlob(8, '👾');
-    const blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
-
-    gmStats = { win: 0, lose: 0, secret: 0, total: 0, authorUnlocked: false };
-    updateGMStatsUI();
-
-    executePlayPhase(blobCount, '🚨 任務開始！小隊必須解鎖步數才能開始尋寶。');
-}
-
-function randomStartGame() {
-    if (!confirm('確定要隨機生成地圖並以 90 步開始嗎？原本的配置將會被清除！')) return;
-
-    initBoard();
-    for (let icon in LIMITS) {
-        const shape = SHAPE_MAP[icon];
-        for (let i = 0; i < LIMITS[icon]; i++) {
-            placeRandomTreasure(shape.w, shape.h, icon);
-        }
-    }
-
-    const b1 = placeRandomBlob(8, '👾');
-    const b2 = placeRandomBlob(8, '👾');
-    const blobCount = (b1 ? 1 : 0) + (b2 ? 1 : 0);
-
-    movesLeft = 90;
-    gmStats = { win: 0, lose: 0, secret: 0, total: 90, authorUnlocked: false };
-    updateGMStatsUI();
-
-    executePlayPhase(blobCount, '🎲 隨機地圖生成完畢！已提供 90 步雷達電量，開始尋寶！');
-}
 
 function executePlayPhase(blobCount, defaultMsg) {
     phase = 'play';
